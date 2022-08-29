@@ -1,12 +1,29 @@
 
 # `innsight` - Get the Insights of your Neural Network
 
+<a href='https://bips-hb.github.io/innsight/'><img src='man/figures/logo.png' align="right" width="200" /></a>
+
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/innsight/actions)
+[![R-CMD-check](https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/innsight)](https://CRAN.R-project.org/package=innsight)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/bips-hb/innsight/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bips-hb/innsight?branch=master)
 <!-- badges: end -->
+
+## Table of Contents
+
+-   [Introduction](#introduction)
+-   [Installation](#installation)
+-   [Usage](#usage)
+-   [Examples](#examples)
+-   [Contributing and Future Work](#contributing-and-future-work)
+-   [Funding](#funding)
+
+## Introduction
 
 `innsight` is an R package that interprets the behavior and explains
 individual predictions of modern neural networks. Many methods for
@@ -24,7 +41,10 @@ Attribution) methods based on neural networks in R, e.g.,
 
 -   Layer-wise Relevance Propagation
     ([LRP](https://doi.org/10.1371/journal.pone.0130140))
-    -   Including propagation rules: *ε*-rule and *α*-*β*-rule
+    -   Including propagation rules:
+        ![\\varepsilon](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cvarepsilon "\varepsilon")-rule
+        and
+        ![\\alpha](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Calpha "\alpha")-![\\beta](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cbeta "\beta")-rule
 -   Deep Learning Important Features
     ([DeepLift](https://arxiv.org/abs/1704.02685))
     -   Including propagation rules for non-linearities: rescale rule
@@ -45,7 +65,7 @@ The package `innsight` aims to be as flexible as possible and
 independent of a specific deep learning package in which the passed
 network has been learned. Basically, a neural network of the libraries
 [`torch`](https://torch.mlverse.org/),
-[`keras`](https://keras.rstudio.com/) and
+[`keras`](https://tensorflow.rstudio.com/) and
 [`neuralnet`](https://CRAN.R-project.org/package=neuralnet) can be
 passed, which is internally converted into a
 [`torch`](https://torch.mlverse.org/) model with special insights needed
@@ -70,14 +90,17 @@ for details).
 
 ## Installation
 
-The package can be installed with the following command (successful
-installation of
-[`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
+The package can be installed directly from CRAN and the development
+version from GitHub with the following commands (successful installation
+of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
 required)
 
 ``` r
+# Stable version
+install.packages("innsight")
+
+# Development version
 devtools::install_github("bips-hb/innsight")
-library(innsight)
 ```
 
 Internally, any passed model is converted to a `torch` model, thus the
@@ -245,6 +268,23 @@ gridExtra::grid.arrange(p_image, p_lrp_ab, layout_matrix = matrix(c(1,2,2), nrow
 ```
 
 <img src="man/figures/README-Example_2-1.png" width="100%" />
+
+## Contributing and Future Work
+
+If you would like to contribute, please open an issue or submit a pull
+request.
+
+This package becomes even more alive and valuable if people are using it
+for their analyses. Therefore, don’t hesitate to write me
+(<niklas.koenen@gmail.com>) or create a feature request if you are
+missing something for your analyses or have great ideas for extending
+this package. Currently, we are working on the following:
+
+-   [ ] Extension to non-sequential models in `keras` with multiple in-
+    and outputs, e.g. for mixed data of tabular and image data
+-   [ ] More methods, e.g. Grad-CAM, integrated gradients, etc.
+-   [ ] More examples and documentation (contact me if you have a
+    non-trivial application for me)
 
 ## Funding
 
