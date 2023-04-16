@@ -1,27 +1,42 @@
-## ---- include = FALSE---------------------------------------------------------
+## ---- include = FALSE---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 knitr::opts_chunk$set(
+  size = "huge",
   collapse = TRUE,
   comment = "#>",
-  fig.width = 7,
-  fig.height = 4,
-  fig.align = "center"
+  fig.align = "center",
+  out.width = "95%"
 )
 
-set.seed(999)
+## ---- echo = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sys.setenv(LANG = "en_US.UTF-8")
+set.seed(1111)
 
-## ---- eval = FALSE------------------------------------------------------------
-#  # Step 1: Model creation and converting
-#  model = ...
+## ----pressure, echo=FALSE, fig.cap = "**Figure 1:** Feature attribution methods"----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+knitr::include_graphics("images/feature_attribution.png")
+
+## ---- echo=FALSE, fig.cap = "**Figure 2:** innsight package"------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+knitr::include_graphics("images/innsight_torch.png")
+
+## ---- eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  # Step 0: Model creation
+#  model <- ... # this step is left to the user
+#  
+#  # Step 1: Convert the model
 #  converter <- Converter$new(model)
 #  
 #  # Step 2: Apply selected method to your data
 #  result <- Method$new(converter, data)
 #  
-#  # Step 3: Plot the results
-#  plot(result)
-#  boxplot(result)
+#  # Step 3: Show and plot the results
+#  get_result(result) # get the result as an `array`, `data.frame` or `torch_tensor`
+#  plot(result) # for individual results (local)
+#  boxplot(result) # for summarized results (global)
 
-## ---- eval = torch::torch_is_installed()--------------------------------------
+## ---- eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  # The 'Converter' object (R6 class)
+#  converter <- Converter$new(model, ...)
+
+## ---- eval = torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 library(torch)
 library(innsight)
 torch_manual_seed(123)
@@ -36,165 +51,217 @@ model <- nn_sequential(
 # Convert the model
 conv_dense <- Converter$new(model, input_dim = c(3))
 # Convert model with input and output names
-conv_dense_with_names <- 
-  Converter$new(model, input_dim = c(3),
-                input_names = list(c("Price", "Weight", "Height")),
-                output_names = list(c("Buy it!", "Don't buy it!")))
-# Show output names
-conv_dense_with_names$model_dict$output_names
-
-## ---- eval = torch::torch_is_installed()--------------------------------------
-nn_flatten <- nn_module(
-    classname = "nn_flatten",
-    initialize = function(start_dim = 2, end_dim = -1) {
-      self$start_dim <- start_dim
-      self$end_dim <- end_dim
-    },
-    forward = function(x) {
-      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
-    }
+conv_dense_with_names <-
+  Converter$new(model,
+    input_dim = c(3),
+    input_names = list(c("Price", "Weight", "Height")),
+    output_names = list(c("Buy it!", "Don't buy it!"))
   )
 
-## ---- eval = torch::torch_is_installed()--------------------------------------
-# Create CNN for images of size (3, 28, 28)
-model <- nn_sequential(
-  nn_conv2d(3, 5, c(2, 2)),
-  nn_relu(),
-  nn_max_pool2d(c(1,2)),
-  nn_conv2d(5, 6, c(2, 3), stride = c(1, 2)),
-  nn_relu(),
-  nn_conv2d(6, 2, c(2, 2), dilation = c(1, 2), padding = c(5,4)),
-  nn_relu(),
-  nn_avg_pool2d(c(2,2)),
-  nn_flatten(),
-  nn_linear(48, 5),
-  nn_softmax(2)
-)
-
-# Convert the model
-conv_cnn <- Converter$new(model, input_dim = c(3, 10, 10))
-
-## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------
-library(keras)
-tensorflow::set_random_seed(42)
-
-# Create model
-model <- keras_model_sequential()
-model <- model %>%
-  layer_dense(10, input_shape = c(5), activation = "softplus") %>%
-  layer_dense(8, use_bias = FALSE, activation = "tanh") %>%
-  layer_dropout(0.2) %>%
-  layer_dense(4, activation = "softmax")
-
-# Convert the model
-conv_dense <- Converter$new(model)
-
-## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------
+## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 library(keras)
 
 # Create model
 model <- keras_model_sequential()
 model <- model %>%
-  layer_conv_2d(4, c(5,4), input_shape = c(10,10,3), activation = "softplus") %>%
-  layer_max_pooling_2d(c(2,2), strides = c(1,1)) %>%
-  layer_conv_2d(6, c(3,3), activation = "relu", padding = "same") %>%
-  layer_max_pooling_2d(c(2,2)) %>%
-  layer_conv_2d(4, c(2,2), strides = c(2,1), activation = "relu") %>%
+  layer_conv_2d(4, c(5, 4), input_shape = c(10, 10, 3), activation = "softplus") %>%
+  layer_max_pooling_2d(c(2, 2), strides = c(1, 1)) %>%
+  layer_conv_2d(6, c(3, 3), activation = "relu", padding = "same") %>%
+  layer_max_pooling_2d(c(2, 2)) %>%
+  layer_conv_2d(4, c(2, 2), strides = c(2, 1), activation = "relu") %>%
   layer_flatten() %>%
   layer_dense(5, activation = "softmax")
 
 # Convert the model
 conv_cnn <- Converter$new(model)
 
-## ---- eval = torch::torch_is_installed()--------------------------------------
+## ---- eval = torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 library(neuralnet)
 data(iris)
 
 # Create model
-model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris, 
-                   linear.output = FALSE)
+model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris,
+  linear.output = FALSE
+)
 
 # Convert model
 conv_dense <- Converter$new(model)
-# Show input names
-conv_dense$model_dict$input_names
-# Show output names
-conv_dense$model_dict$output_names
 
-## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()----
+## ---- eval = torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+model <- list(
+  input_dim = 2,
+  input_names = list(c("X1", "Feat2")),
+  input_nodes = 1,
+  output_nodes = 2,
+  layers = list(
+    list(
+      type = "Dense", weight = matrix(rnorm(10), 5, 2), bias = rnorm(5),
+      activation_name = "relu", input_layers = 0, output_layers = 2
+    ),
+    list(
+      type = "Dense", weight = matrix(rnorm(5), 1, 5), bias = rnorm(1),
+      activation_name = "sigmoid", input_layers = 1, output_layers = -1
+    )
+  )
+)
+
+converter <- Converter$new(model)
+
+## ---- eval = torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+converter
+
+## ---- eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  method <- Method$new(converter, data, # required arguments
+#    channels_first = TRUE, # optional settings
+#    output_idx = NULL, # .
+#    ignore_last_act = TRUE, # .
+#    ... # other args and method-specific args
+#  )
+
+## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Apply method 'Gradient' for the dense network
-grad_dense <- Gradient$new(conv_dense, iris[-c(1,2,5)])
+grad_dense <- Gradient$new(conv_dense, iris[-c(1, 2, 5)])
 
 # Apply method 'Gradient x Input' for CNN
-x <- torch_randn(c(10,3,10,10))
+x <- torch_randn(c(10, 3, 10, 10))
 grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
 
-## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()----
+## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Apply method 'SmoothGrad' for the dense network
-smooth_dense <- SmoothGrad$new(conv_dense, iris[-c(1,2,5)])
+smooth_dense <- SmoothGrad$new(conv_dense, iris[-c(1, 2, 5)])
 
 # Apply method 'SmoothGrad x Input' for CNN
-x <- torch_randn(c(10,3,10,10))
+x <- torch_randn(c(10, 3, 10, 10))
 smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
 
-## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()----
+## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Apply method 'LRP' for the dense network
-lrp_dense <- LRP$new(conv_dense, iris[-c(1,2,5)])
+lrp_dense <- LRP$new(conv_dense, iris[-c(1, 2, 5)])
 
 # Apply method 'LRP' for CNN with alpha-beta-rule
-x <- torch_randn(c(10,10,10,3))
-lrp_cnn <- LRP$new(conv_cnn, x, rule_name = "alpha_beta", rule_param = 1,
-                   channels_first = FALSE)
+x <- torch_randn(c(10, 10, 10, 3))
+lrp_cnn <- LRP$new(conv_cnn, x,
+  rule_name = "alpha_beta", rule_param = 1,
+  channels_first = FALSE
+)
 
-## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()----
+## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Define reference value
-x_ref <- array(colMeans(iris[-c(1,2,5)]), dim = c(1,2))
+x_ref <- array(colMeans(iris[-c(1, 2, 5)]), dim = c(1, 2))
 # Apply method 'DeepLift' for the dense network
-deeplift_dense <- DeepLift$new(conv_dense, iris[-c(1,2,5)], x_ref = x_ref)
+deeplift_dense <- DeepLift$new(conv_dense, iris[-c(1, 2, 5)], x_ref = x_ref)
 
-# Apply method 'DeepLift' for CNN
-x <- torch_randn(c(10,3,10,10))
+# Apply method 'DeepLift' for CNN (default is a zero baseline)
+x <- torch_randn(c(10, 3, 10, 10))
 deeplift_cnn <- DeepLift$new(conv_cnn, x)
 
-## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------
+## ---- results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Apply global method 'ConnectionWeights' for a dense network
+connectweights_dense <- ConnectionWeights$new(conv_dense)
+
+# Apply local method 'ConnectionWeights' for a CNN
+# Note: This variant requires input data
+x <- torch_randn(c(10, 3, 10, 10))
+connectweights_cnn <- ConnectionWeights$new(conv_cnn, x, times_input = TRUE)
+
+## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+smooth_cnn
+
+## ---- eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  # Get the result with the class method
+#  method$get_result(type = "array")
+#  
+#  # or use the S3 function
+#  get_result(method, type = "array")
+
+## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Get result (make sure 'grad_dense' is defined!)
 result_array <- grad_dense$get_result()
 
-# Show for datapoint 1 and 71 the result
-result_array[c(1,71),,]
+# or with the S3 method
+result_array <- get_result(grad_dense)
 
-## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------
+# Show the result for data point 1 and 71
+result_array[c(1, 71), , ]
+
+## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Get result as data.frame (make sure 'lrp_cnn' is defined!)
 result_data.frame <- lrp_cnn$get_result("data.frame")
+
+# or with the S3 method
+result_data.frame <- get_result(lrp_cnn, "data.frame")
 
 # Show the first 5 rows
 head(result_data.frame, 5)
 
-## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------
+## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Get result (make sure 'deeplift_dense' is defined!)
 result_torch <- deeplift_dense$get_result("torch_tensor")
 
-# Show for datapoint 1 and 71 the result
-result_torch[c(1,71),,]
+# or with the S3 method
+result_torch <- get_result(deeplift_dense, "torch_tensor")
 
-## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------
+# Show for datapoint 1 and 71 the result
+result_torch[c(1, 71), , ]
+
+## ---- eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  # Create a plot for single data points
+#  plot(method,
+#    data_idx = 1, # the data point to be plotted
+#    output_idx = NULL, # the indices of the output nodes/classes to be plotted
+#    aggr_channels = "sum",
+#    as_plotly = FALSE, # create an interactive plot
+#    ... # other arguments
+#  )
+#  
+#  # Create a plot with summarized results
+#  boxplot(method,
+#    output_idx = NULL, # the indices of the output nodes/classes to be plotted
+#    ref_data_idx = NULL, # the index of an reference data point to be plotted
+#    aggr_channels = "sum",
+#    as_plotly = FALSE, # create an interactive plot
+#    ... # other arguments
+#  )
+
+## ---- eval = keras::is_keras_available() & torch::torch_is_installed(), fig.height=6, fig.width=9-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Plot the result of the first data point (default) for the output classes '1', '2' and '3'
 plot(smooth_dense, output_idx = 1:3)
 # You can plot several data points at once
-plot(smooth_dense, data_idx = c(1,71), output_idx = 1:3)
-# Plot result for the first data point and first and fourth output
-plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1,4))
+plot(smooth_dense, data_idx = c(1, 144), output_idx = 1:3)
+# Plot result for the first data point and first and fourth output classes
+# and aggregate the channels by taking the Euclidean norm
+plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1, 4))
 
-## ---- eval = FALSE------------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  # Create a plotly plot for the first output
-#  plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1), as_plotly = TRUE)
+#  plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1), as_plotly = TRUE)
 
-## ---- eval = keras::is_keras_available() & torch::torch_is_installed()--------
+## ---- fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  # You can do the same with the plotly-based plots
+#  p <- plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1), as_plotly = TRUE)
+#  plotly::config(print(p))
+
+## ---- eval = keras::is_keras_available() & torch::torch_is_installed(), fig.height=6, fig.width=9-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Create boxplot for the first two output classes
 boxplot(smooth_dense, output_idx = 1:2)
-# Use no preprocess function (default: abs) and plot reference data point
-boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
-        ref_data_idx = c(55))
+# Use no preprocess function (default: abs) and plot a reference data point
+boxplot(smooth_dense,
+  output_idx = 1:3, preprocess_FUN = identity,
+  ref_data_idx = c(55)
+)
 
-## ---- eval = FALSE------------------------------------------------------------
-#  boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
-#          ref_data_idx = c(55), as_plotly = TRUE, individual_data_idx = c(1))
+## ---- fig.height=6, fig.width=9, eval = FALSE---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  # You can do the same with the plotly-based plots
+#  boxplot(smooth_dense,
+#    output_idx = 1:3, preprocess_FUN = identity,
+#    ref_data_idx = c(55), as_plotly = TRUE
+#  )
+
+## ---- fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#  # You can do the same with the plotly-based plots
+#  p <- boxplot(smooth_dense,
+#    output_idx = 1:3, preprocess_FUN = identity,
+#    ref_data_idx = c(55), as_plotly = TRUE
+#  )
+#  plotly::config(print(p))
 
