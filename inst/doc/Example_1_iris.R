@@ -55,11 +55,11 @@ for (t in 1:2500) {
 
 ## ----example_1_conv_1---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create the converter object
-converter <- Converter$new(model, input_dim = c(4))
+converter <- convert(model, input_dim = c(4))
 
 ## ----example_1_conv_2, eval = torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create `Converter` object (with custom labels)
-converter <- Converter$new(model,
+converter <- convert(model,
   input_dim = c(4),
   input_names = c("Sepal (length)", "Sepal (width)", "Petal (length)", "Petal (width)"),
   output_names = c("Setosa", "Versicolor", "Virginica")
@@ -72,17 +72,17 @@ options(width = 80)
 converter
 
 ## -----------------------------------------------------------------------------
-grad_no_softmax <- Gradient$new(converter, x, ignore_last_act = TRUE)
+grad_no_softmax <- run_grad(converter, x, ignore_last_act = TRUE)
 
 ## ---- message = FALSE, results = 'hide'---------------------------------------
-grad_softmax <- Gradient$new(converter, x, ignore_last_act = FALSE)
+grad_softmax <- run_grad(converter, x, ignore_last_act = FALSE)
 
 ## ---- message = FALSE, results = 'hide'---------------------------------------
-lrp_eps <- LRP$new(converter, x, rule_name = "epsilon", rule_param = 0.01)
+lrp_eps <- run_lrp(converter, x, rule_name = "epsilon", rule_param = 0.01)
 
 ## ---- message = FALSE, results = 'hide'---------------------------------------
 x_ref <- x$mean(1, keepdim = TRUE) # ref value needs the shape (1,4)
-deeplift_mean <- DeepLift$new(converter, x, x_ref = x_ref)
+deeplift_mean <- run_deeplift(converter, x, x_ref = x_ref)
 
 ## -----------------------------------------------------------------------------
 deeplift_mean

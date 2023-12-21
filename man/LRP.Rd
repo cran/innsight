@@ -2,9 +2,9 @@
 % Please edit documentation in R/LRP.R
 \name{LRP}
 \alias{LRP}
-\title{Layer-wise Relevance Propagation (LRP)}
+\title{Layer-wise relevance propagation (LRP)}
 \description{
-This is an implementation of the \emph{Layer-wise Relevance Propagation
+This is an implementation of the \emph{layer-wise relevance propagation
 (LRP)} algorithm introduced by Bach et al. (2015). It's a local method for
 interpreting a single element of the dataset and calculates the relevance
 scores for each input feature to the model output. The basic idea of this
@@ -16,6 +16,9 @@ is generally an approximation. There exist several propagation rules to
 determine the relevance scores. In this package are implemented: simple
 rule ("simple"), \eqn{\varepsilon}-rule ("epsilon") and
 \eqn{\alpha}-\eqn{\beta}-rule ("alpha_beta").
+
+The R6 class can also be initialized using the \code{\link{run_lrp}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -32,10 +35,14 @@ model <- nn_sequential(
 data <- torch_randn(25, 5)
 
 # Create Converter
-converter <- Converter$new(model, input_dim = c(5))
+converter <- convert(model, input_dim = c(5))
 
 # Apply method LRP with simple rule (default)
 lrp <- LRP$new(converter, data)
+
+# You can also use the helper function `run_lrp` for initializing
+# an R6 LRP object
+lrp <- run_lrp(converter, data)
 
 # Print the result as an array for data point one and two
 get_result(lrp)[1:2,,]
@@ -47,94 +54,101 @@ plot(lrp, output_idx = 1:2)
 boxplot(lrp, output_idx = 1:2, preprocess_FUN = identity)
 
 # ------------------------- Example 2: Neuralnet ---------------------------
-library(neuralnet)
-data(iris)
-nn <- neuralnet(Species ~ .,
-  iris,
-  linear.output = FALSE,
-  hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
-)
-# create an converter for this model
-converter <- Converter$new(nn)
+if (require("neuralnet")) {
+  library(neuralnet)
+  data(iris)
+  nn <- neuralnet(Species ~ .,
+    iris,
+    linear.output = FALSE,
+    hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
+  )
 
-# create new instance of 'LRP'
-lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
+  # Create an converter for this model
+  converter <- convert(nn)
 
-# get the result as an array for data point one and two
-get_result(lrp)[1:2,,]
+  # Create new instance of 'LRP'
+  lrp <- run_lrp(converter, iris[, -5], rule_name = "simple")
 
-# get the result as a torch tensor for data point one and two
-get_result(lrp, type = "torch.tensor")[1:2]
+  # Get the result as an array for data point one and two
+  get_result(lrp)[1:2,,]
 
-# use the alpha-beta rule with alpha = 2
-lrp <- LRP$new(converter, iris[, -5],
-  rule_name = "alpha_beta",
-  rule_param = 2
-)
+  # Get the result as a torch tensor for data point one and two
+  get_result(lrp, type = "torch.tensor")[1:2]
 
-# include the last activation into the calculation
-lrp <- LRP$new(converter, iris[, -5],
-  rule_name = "alpha_beta",
-  rule_param = 2,
-  ignore_last_act = FALSE
-)
+  # Use the alpha-beta rule with alpha = 2
+  lrp <- run_lrp(converter, iris[, -5],
+    rule_name = "alpha_beta",
+    rule_param = 2
+  )
 
-# Plot the result for all classes
-plot(lrp, output_idx = 1:3)
+  # Include the last activation into the calculation
+  lrp <- run_lrp(converter, iris[, -5],
+    rule_name = "alpha_beta",
+    rule_param = 2,
+    ignore_last_act = FALSE
+  )
+
+  # Plot the result for all classes
+  plot(lrp, output_idx = 1:3)
+}
 \dontshow{\}) # examplesIf}
-\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
-library(keras)
+if (require("keras") & keras::is_keras_available()) {
+  library(keras)
 
-# Make sure keras is installed properly
-is_keras_available()
+  # Make sure keras is installed properly
+  is_keras_available()
 
-data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
+  data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
 
-model <- keras_model_sequential()
-model \%>\%
-  layer_conv_1d(
-    input_shape = c(60, 3), kernel_size = 8, filters = 8,
-    activation = "softplus", padding = "valid") \%>\%
-  layer_conv_1d(
-    kernel_size = 8, filters = 4, activation = "tanh",
-    padding = "same") \%>\%
-  layer_conv_1d(
-    kernel_size = 4, filters = 2, activation = "relu",
-    padding = "valid") \%>\%
-  layer_flatten() \%>\%
-  layer_dense(units = 64, activation = "relu") \%>\%
-  layer_dense(units = 16, activation = "relu") \%>\%
-  layer_dense(units = 3, activation = "softmax")
+  model <- keras_model_sequential()
+  model \%>\%
+    layer_conv_1d(
+      input_shape = c(60, 3), kernel_size = 8, filters = 8,
+      activation = "softplus", padding = "valid") \%>\%
+    layer_conv_1d(
+      kernel_size = 8, filters = 4, activation = "tanh",
+      padding = "same") \%>\%
+    layer_conv_1d(
+      kernel_size = 4, filters = 2, activation = "relu",
+      padding = "valid") \%>\%
+    layer_flatten() \%>\%
+    layer_dense(units = 64, activation = "relu") \%>\%
+    layer_dense(units = 16, activation = "relu") \%>\%
+    layer_dense(units = 3, activation = "softmax")
 
-# Convert the model
-converter <- Converter$new(model)
+  # Convert the model
+  converter <- convert(model)
 
-# Apply the LRP method with the epsilon rule for the dense layers and
-# the alpha-beta rule for the convolutional layers
-lrp_comp <- LRP$new(converter, data,
-  channels_first = FALSE,
-  rule_name = list(Dense_Layer = "epsilon", Conv1D_Layer = "alpha_beta"),
-  rule_param = list(Dense_Layer = 0.1, Conv1D_Layer = 1)
-)
+  # Apply the LRP method with the epsilon rule for the dense layers and
+  # the alpha-beta rule for the convolutional layers
+  lrp_comp <- run_lrp(converter, data,
+    channels_first = FALSE,
+    rule_name = list(Dense_Layer = "epsilon", Conv1D_Layer = "alpha_beta"),
+    rule_param = list(Dense_Layer = 0.1, Conv1D_Layer = 1)
+  )
 
-# Plot the result for the first datapoint and all classes
-plot(lrp_comp, output_idx = 1:3)
+  # Plot the result for the first datapoint and all classes
+  plot(lrp_comp, output_idx = 1:3)
 
-# Plot the result as boxplots for first two classes
-boxplot(lrp_comp, output_idx = 1:2)
+  # Plot the result as boxplots for first two classes
+  boxplot(lrp_comp, output_idx = 1:2)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #------------------------- Plotly plots ------------------------------------
-# You can also create an interactive plot with plotly.
-# This is a suggested package, so make sure that it is installed
-library(plotly)
+if (require("plotly")) {
+  # You can also create an interactive plot with plotly.
+  # This is a suggested package, so make sure that it is installed
+  library(plotly)
 
-# Result as boxplots
-boxplot(lrp, as_plotly = TRUE)
+  # Result as boxplots
+  boxplot(lrp, as_plotly = TRUE)
 
-# Result of the second data point
-plot(lrp, data_idx = 2, as_plotly = TRUE)
+  # Result of the second data point
+  plot(lrp, data_idx = 2, as_plotly = TRUE)
+}
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -146,7 +160,12 @@ p. 1-46
 Other methods: 
 \code{\link{ConnectionWeights}},
 \code{\link{DeepLift}},
+\code{\link{DeepSHAP}},
+\code{\link{ExpectedGradient}},
 \code{\link{Gradient}},
+\code{\link{IntegratedGradient}},
+\code{\link{LIME}},
+\code{\link{SHAP}},
 \code{\link{SmoothGrad}}
 }
 \concept{methods}
@@ -188,9 +207,9 @@ rule parameter to each layer type.\cr}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
@@ -208,6 +227,7 @@ the field \code{result}.
   data,
   channels_first = TRUE,
   output_idx = NULL,
+  output_label = NULL,
   ignore_last_act = TRUE,
   rule_name = "simple",
   rule_param = NULL,
@@ -261,6 +281,33 @@ applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
 a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
+
+\item{\code{output_label}}{(\code{character}, \code{factor}, \code{list} or \code{NULL})\cr
+These values specify the output nodes for which
+the method is to be applied. Only values that were previously passed with
+the argument \code{output_names} in the \code{converter} can be used. In order to
+allow models with multiple
+output layers, there are the following possibilities to select
+the names of the output nodes in the individual output layers:
+\itemize{
+\item A \code{character} vector or \code{factor} of labels: If the model has only one output
+layer, the values correspond to the labels of the output nodes named in the
+passed \code{Converter} object, e.g.,
+\code{c("a", "c", "d")} for the first, third and fourth output node if the
+output names are \code{c("a", "b", "c", "d")}. If there are
+multiple output layers, the names of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{charactor}/\code{factor} vectors of labels: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired labels of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of labels, e.g., \code{list(NULL, c("a", "c"))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the

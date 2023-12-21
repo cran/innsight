@@ -2,9 +2,9 @@
 % Please edit documentation in R/DeepLift.R
 \name{DeepLift}
 \alias{DeepLift}
-\title{Deep Learning Important Features (DeepLift)}
+\title{Deep learning important features (DeepLift)}
 \description{
-This is an implementation of the \emph{Deep Learning Important Features
+This is an implementation of the \emph{deep learning important features
 (DeepLift)} algorithm introduced by Shrikumar et al. (2017). It's a local
 method for interpreting a single element \eqn{x} of the dataset concerning
 a reference value \eqn{x'} and returns the contribution of each input
@@ -13,12 +13,15 @@ output (\eqn{y'=f(x')}) prediction. The basic idea of this method is to
 decompose the difference-from-reference prediction with respect to the
 input features, i.e.,
 \deqn{\Delta y = y - y'  = \sum_i C(x_i).}
-Compared to \emph{Layer-wise Relevance Propagation} (see \link{LRP}), the
+Compared to \emph{Layer-wise relevance propagation} (see \link{LRP}), the
 DeepLift method is an exact decomposition and not an approximation, so we
 get real contributions of the input features to the
 difference-from-reference prediction. There are two ways to handle
 activation functions: the \emph{Rescale} rule (\code{'rescale'}) and
 \emph{RevealCancel} rule (\code{'reveal_cancel'}).
+
+The R6 class can also be initialized using the \code{\link{run_deeplift}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -35,11 +38,15 @@ model <- nn_sequential(
 data <- torch_randn(25, 5)
 ref <- torch_randn(1, 5)
 
-# Create Converter
-converter <- Converter$new(model, input_dim = c(5))
+# Create Converter using the helper function `convert`
+converter <- convert(model, input_dim = c(5))
 
 # Apply method DeepLift
 deeplift <- DeepLift$new(converter, data, x_ref = ref)
+
+# You can also use the helper function `run_deeplift` for initializing
+# an R6 DeepLift object
+deeplift <- run_deeplift(converter, data, x_ref = ref)
 
 # Print the result as a torch tensor for first two data points
 get_result(deeplift, "torch.tensor")[1:2]
@@ -51,80 +58,85 @@ plot(deeplift, output_idx = 1:2)
 boxplot(deeplift, output_idx = 1:2)
 
 # ------------------------- Example 2: Neuralnet ---------------------------
-library(neuralnet)
-data(iris)
+if (require("neuralnet")) {
+  library(neuralnet)
+  data(iris)
 
-# Train a neural network
-nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-  iris,
-  linear.output = FALSE,
-  hidden = c(3, 2), act.fct = "tanh", rep = 1
-)
+  # Train a neural network
+  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
+    iris,
+    linear.output = FALSE,
+    hidden = c(3, 2), act.fct = "tanh", rep = 1
+  )
 
-# Convert the model
-converter <- Converter$new(nn)
+  # Convert the model
+  converter <- convert(nn)
 
-# Apply DeepLift with rescale-rule and a reference input of the feature
-# means
-x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
-deeplift_rescale <- DeepLift$new(converter, iris[, c(3, 4)], x_ref = x_ref)
+  # Apply DeepLift with rescale-rule and a reference input of the feature
+  # means
+  x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
+  deeplift_rescale <- run_deeplift(converter, iris[, c(3, 4)], x_ref = x_ref)
 
-# Get the result as a dataframe and show first 5 rows
-get_result(deeplift_rescale, type = "data.frame")[1:5, ]
+  # Get the result as a dataframe and show first 5 rows
+  get_result(deeplift_rescale, type = "data.frame")[1:5, ]
 
-# Plot the result for the first datapoint in the data
-plot(deeplift_rescale, data_idx = 1)
+  # Plot the result for the first datapoint in the data
+  plot(deeplift_rescale, data_idx = 1)
 
-# Plot the result as boxplots
-boxplot(deeplift_rescale)
+  # Plot the result as boxplots
+  boxplot(deeplift_rescale)
+}
 \dontshow{\}) # examplesIf}
-\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
-library(keras)
+if (require("keras") & keras::is_keras_available()) {
+  library(keras)
 
-# Make sure keras is installed properly
-is_keras_available()
+  # Make sure keras is installed properly
+  is_keras_available()
 
-data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
+  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 
-model <- keras_model_sequential()
-model \%>\%
-  layer_conv_2d(
-    input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-    activation = "softplus", padding = "valid") \%>\%
-  layer_conv_2d(
-    kernel_size = 8, filters = 4, activation = "tanh",
-    padding = "same") \%>\%
-  layer_conv_2d(
-    kernel_size = 4, filters = 2, activation = "relu",
-    padding = "valid") \%>\%
-  layer_flatten() \%>\%
-  layer_dense(units = 64, activation = "relu") \%>\%
-  layer_dense(units = 16, activation = "relu") \%>\%
-  layer_dense(units = 2, activation = "softmax")
+  model <- keras_model_sequential()
+  model \%>\%
+    layer_conv_2d(
+      input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+      activation = "softplus", padding = "valid") \%>\%
+    layer_conv_2d(
+      kernel_size = 8, filters = 4, activation = "tanh",
+      padding = "same") \%>\%
+    layer_conv_2d(
+      kernel_size = 4, filters = 2, activation = "relu",
+      padding = "valid") \%>\%
+    layer_flatten() \%>\%
+    layer_dense(units = 64, activation = "relu") \%>\%
+    layer_dense(units = 16, activation = "relu") \%>\%
+    layer_dense(units = 2, activation = "softmax")
 
-# Convert the model
-converter <- Converter$new(model)
+  # Convert the model
+  converter <- convert(model)
 
-# Apply the DeepLift method with reveal-cancel rule
-deeplift_revcancel <- DeepLift$new(converter, data,
-  channels_first = FALSE,
-  rule_name = "reveal_cancel"
-)
+  # Apply the DeepLift method with reveal-cancel rule
+  deeplift_revcancel <- run_deeplift(converter, data,
+    channels_first = FALSE,
+    rule_name = "reveal_cancel"
+  )
 
-# Plot the result for the first image and both classes
-plot(deeplift_revcancel, output_idx = 1:2)
+  # Plot the result for the first image and both classes
+  plot(deeplift_revcancel, output_idx = 1:2)
 
-# Plot the result as boxplots for first class
-boxplot(deeplift_revcancel, output_idx = 1)
+  # Plot the pixel-wise median reelvance image
+  plot_global(deeplift_revcancel, output_idx = 1)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #------------------------- Plotly plots ------------------------------------
-
-# You can also create an interactive plot with plotly.
-# This is a suggested package, so make sure that it is installed
-library(plotly)
-boxplot(deeplift_rescale, as_plotly = TRUE)
+if (require("plotly")) {
+  # You can also create an interactive plot with plotly.
+  # This is a suggested package, so make sure that it is installed
+  library(plotly)
+  boxplot(deeplift, as_plotly = TRUE)
+}
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -134,8 +146,13 @@ propagating activation differences.}  ICML 2017, p. 4844-4866
 \seealso{
 Other methods: 
 \code{\link{ConnectionWeights}},
+\code{\link{DeepSHAP}},
+\code{\link{ExpectedGradient}},
 \code{\link{Gradient}},
+\code{\link{IntegratedGradient}},
+\code{\link{LIME}},
 \code{\link{LRP}},
+\code{\link{SHAP}},
 \code{\link{SmoothGrad}}
 }
 \concept{methods}
@@ -165,9 +182,9 @@ Either \code{'rescale'} or \code{'reveal_cancel'}.\cr}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
@@ -185,6 +202,7 @@ the field \code{result}.
   data,
   channels_first = TRUE,
   output_idx = NULL,
+  output_label = NULL,
   ignore_last_act = TRUE,
   rule_name = "rescale",
   x_ref = NULL,
@@ -238,6 +256,33 @@ applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
 a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
+
+\item{\code{output_label}}{(\code{character}, \code{factor}, \code{list} or \code{NULL})\cr
+These values specify the output nodes for which
+the method is to be applied. Only values that were previously passed with
+the argument \code{output_names} in the \code{converter} can be used. In order to
+allow models with multiple
+output layers, there are the following possibilities to select
+the names of the output nodes in the individual output layers:
+\itemize{
+\item A \code{character} vector or \code{factor} of labels: If the model has only one output
+layer, the values correspond to the labels of the output nodes named in the
+passed \code{Converter} object, e.g.,
+\code{c("a", "c", "d")} for the first, third and fourth output node if the
+output names are \code{c("a", "b", "c", "d")}. If there are
+multiple output layers, the names of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{charactor}/\code{factor} vectors of labels: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired labels of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of labels, e.g., \code{list(NULL, c("a", "c"))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the

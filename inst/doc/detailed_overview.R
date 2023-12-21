@@ -19,6 +19,15 @@ library(innsight)
 #    save_model_as_list = FALSE
 #  )
 
+## ---- eval = FALSE----------------------------------------------------------------------
+#  converter <- convert(model,
+#    input_dim = NULL,
+#    input_names = NULL,
+#    output_names = NULL,
+#    dtype = "float",
+#    save_model_as_list = FALSE
+#  )
+
 ## ---------------------------------------------------------------------------------------
 library(torch)
 
@@ -35,7 +44,7 @@ torch_model <- nn_sequential(
 )
 
 # For torch models the optional argument `input_dim` becomes a necessary one
-converter <- Converter$new(torch_model, input_dim = c(3, 10, 10))
+converter <- convert(torch_model, input_dim = c(3, 10, 10))
 
 ## ---- eval = torch::torch_is_installed() & keras::is_keras_available()------------------
 library(keras)
@@ -48,7 +57,7 @@ keras_model_seq <- keras_model_seq %>%
   layer_dropout(0.2) %>%
   layer_dense(4, activation = "softmax")
 
-converter <- Converter$new(keras_model_seq)
+converter <- convert(keras_model_seq)
 
 ## ---- eval = torch::torch_is_installed() & keras::is_keras_available()------------------
 library(keras)
@@ -70,7 +79,7 @@ output <- layer_concatenate(list(conv_part, input_tab)) %>%
 
 keras_model_concat <- keras_model(inputs = list(input_image, input_tab), outputs = output)
 
-converter <- Converter$new(keras_model_concat)
+converter <- convert(keras_model_concat)
 
 ## ---------------------------------------------------------------------------------------
 library(neuralnet)
@@ -83,7 +92,7 @@ neuralnet_model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris,
 )
 
 # Convert model
-converter <- Converter$new(neuralnet_model)
+converter <- convert(neuralnet_model)
 # Show input names
 converter$input_names
 # Show output names
@@ -313,7 +322,7 @@ res1 - res2
 
 ## ---------------------------------------------------------------------------------------
 # Convert the model and save the model as a list
-converter <- Converter$new(keras_model_concat, save_model_as_list = TRUE)
+converter <- convert(keras_model_concat, save_model_as_list = TRUE)
 
 # Get the field `input_dim`
 converter$input_dim
@@ -350,7 +359,7 @@ str(model_as_list$layers[[4]])
 # let's change the activation function to "relu"
 model_as_list$layers[[4]]$activation_name <- "relu"
 # create a Converter object with the modified model
-converter_modified <- Converter$new(model_as_list)
+converter_modified <- convert(model_as_list)
 
 # now, we get different results for the same input because of the relu activation
 converter_modified$model(x, channels_first = FALSE)
@@ -368,6 +377,7 @@ converter
 #  method <- Method$new(converter, data,
 #    channels_first = TRUE,
 #    output_idx = NULL,
+#    output_label = NULL,
 #    ignore_last_act = TRUE,
 #    verbose = interactive(),
 #    dtype = "float"
@@ -403,10 +413,17 @@ model <- list(
   )
 )
 
-converter <- Converter$new(model)
+converter <- convert(model)
 
 ## ---- eval = FALSE----------------------------------------------------------------------
+#  # R6 class syntax
 #  grad <- Gradient$new(converter, data,
+#    times_input = FALSE,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+#  
+#  # Using the helper function
+#  grad <- run_grad(converter, data,
 #    times_input = FALSE,
 #    ... # other arguments inherited from 'InterpretingMethod'
 #  )
@@ -459,12 +476,21 @@ base +
 data <- matrix(c(0.45), 1, 1)
 
 # Apply method (but don't ignore last activation)
-grad <- Gradient$new(converter, data, ignore_last_act = FALSE)
+grad <- run_grad(converter, data, ignore_last_act = FALSE)
 # get result
-grad$get_result()
+get_result(grad)
 
 ## ---- eval = FALSE----------------------------------------------------------------------
+#  # R6 class syntax
 #  smoothgrad <- SmoothGrad$new(converter, data,
+#    n = 50,
+#    noise_level = 0.1,
+#    times_input = FALSE,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+#  
+#  # Using the helper function
+#  smoothgrad <- run_smoothgrad(converter, data,
 #    n = 50,
 #    noise_level = 0.1,
 #    times_input = FALSE,
@@ -521,13 +547,13 @@ fig +
 data <- matrix(c(0.6), 1, 1)
 
 # Apply method
-smoothgrad <- SmoothGrad$new(converter, data,
+smoothgrad <- run_smoothgrad(converter, data,
   noise_level = 0.2,
   n = 50,
   ignore_last_act = FALSE # include the tanh activation
 ) 
 # get result
-smoothgrad$get_result()
+get_result(smoothgrad)
 
 ## ---- eval = FALSE----------------------------------------------------------------------
 #  # the "x Input" variant of method "Gradient"
@@ -536,8 +562,20 @@ smoothgrad$get_result()
 #    ... # other arguments of method "Gradient"
 #  )
 #  
+#  # the same using the corresponding helper function
+#  grad_x_input <- run_grad(converter, data,
+#    times_input = TRUE,
+#    ... # other arguments of method "Gradient"
+#  )
+#  
 #  # the "x Input" variant of method "SmoothGrad"
 #  smoothgrad_x_input <- SmoothGrad$new(converter, data,
+#    times_input = TRUE,
+#    ... # other arguments of method "SmoothGrad"
+#  )
+#  
+#  # the same using the corresponding helper function
+#  smoothgrad_x_input <- run_smoothgrad(converter, data,
 #    times_input = TRUE,
 #    ... # other arguments of method "SmoothGrad"
 #  )
@@ -568,12 +606,12 @@ base +
 data <- matrix(c(0.49), 1, 1)
 
 # Apply method
-grad_x_input <- Gradient$new(converter, data,
+grad_x_input <- run_grad(converter, data,
   times_input = TRUE,
   ignore_last_act = FALSE # include the tanh activation
 ) 
 # get result
-grad_x_input$get_result()
+get_result(grad_x_input)
 
 ## ---- echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 5:** SmoothGrad$\\times$Input method"----
 set.seed(111)
@@ -617,18 +655,27 @@ base +
 data <- matrix(c(0.49), 1, 1)
 
 # Apply method
-smoothgrad_x_input <- SmoothGrad$new(converter, data,
+smoothgrad_x_input <- run_smoothgrad(converter, data,
   times_input = TRUE,
   ignore_last_act = FALSE # include the tanh activation
 ) 
 # get result
-smoothgrad_x_input$get_result()
+get_result(smoothgrad_x_input)
 
 ## ---- eval = TRUE, echo=FALSE, fig.cap = "**Fig. 6:** Layerwise Relevance Propagation"----
 knitr::include_graphics("images/lrp.png")
 
 ## ---- eval = FALSE----------------------------------------------------------------------
+#  # R6 class syntax
 #  lrp <- LRP$new(converter, data,
+#    rule_name = "simple",
+#    rule_param = NULL,
+#    winner_takes_all = TRUE,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+#  
+#  # Using the helper function for initialization
+#  lrp <- run_lrp(converter, data,
 #    rule_name = "simple",
 #    rule_param = NULL,
 #    winner_takes_all = TRUE,
@@ -646,10 +693,10 @@ data <- matrix(
 )
 
 # Apply LRP with simple rule
-lrp <- LRP$new(converter, data,
+lrp <- run_lrp(converter, data,
   ignore_last_act = FALSE
 )
-lrp$get_result()
+get_result(lrp)
 
 # get approximation error
 matrix(lrp$get_result()) - as_array(converter$model(torch_tensor(data))[[1]])
@@ -658,19 +705,19 @@ matrix(lrp$get_result()) - as_array(converter$model(torch_tensor(data))[[1]])
 
 
 fun_1 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE)$get_result()
 }
 
 fun_2 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "epsilon", rule_param = 0.1)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "epsilon", rule_param = 0.1)$get_result()
 }
 
 fun_3 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 0.5)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 0.5)$get_result()
 }
 
 fun_4 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 1)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 1)$get_result()
 }
 
 ggplot() +
@@ -686,7 +733,16 @@ ggplot() +
   labs(color = "Rule")
 
 ## ---- eval = FALSE----------------------------------------------------------------------
+#  # R6 class syntax
 #  deeplift <- DeepLift$new(converter, data,
+#    x_ref = NULL,
+#    rule_name = "rescale",
+#    winner_takes_all = TRUE,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+#  
+#  # Using the helper function for initialization
+#  deeplift <- run_deeplift(converter, data,
 #    x_ref = NULL,
 #    rule_name = "rescale",
 #    winner_takes_all = TRUE,
@@ -699,7 +755,7 @@ x <- matrix(c(0.55))
 x_ref <- matrix(c(0.1))
 
 # Apply method DeepLift with rescale rule
-deeplift <- DeepLift$new(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
+deeplift <- run_deeplift(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
 
 # Get result
 get_result(deeplift)
@@ -712,11 +768,11 @@ set.seed(42)
 model <- neuralnet(Species ~ ., iris, hidden = 5, linear.output = FALSE)
 
 # Step 1: Create 'Converter'
-conv <- Converter$new(model)
+conv <- convert(model)
 
 # Step 2: Apply DeepLift (reveal-cancel rule)
 x_ref <- matrix(colMeans(iris[, -5]), nrow = 1) # use colmeans as reference value
-deeplift <- DeepLift$new(conv, iris[, -5],
+deeplift <- run_deeplift(conv, iris[, -5],
   x_ref = x_ref, ignore_last_act = FALSE,
   rule_name = "reveal_cancel"
 )
@@ -731,6 +787,112 @@ summed_decomposition <- apply(get_result(deeplift), c(1, 3), FUN = sum) # dim 2 
 mean((delta_y - summed_decomposition)^2)
 
 ## ---- eval = FALSE----------------------------------------------------------------------
+#  # R6 class syntax
+#  intgrad <- IntegratedGradient$new(converter, data,
+#    x_ref = NULL,
+#    n = 50,
+#    times_input = TRUE,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+#  
+#  # Using the helper function for initialization
+#  intgrad <- run_intgrad(converter, data,
+#    x_ref = NULL,
+#    n = 50,
+#    times_input = TRUE,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+
+## ---------------------------------------------------------------------------------------
+# Create data
+x <- matrix(c(0.55))
+x_ref <- matrix(c(0.1))
+
+# Apply method IntegratedGradient
+intgrad <- run_intgrad(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
+
+# Get result
+get_result(intgrad)
+
+## ---- eval = FALSE----------------------------------------------------------------------
+#  # R6 class syntax
+#  expgrad <- ExpectedGradient$new(converter, data,
+#    data_ref = NULL,
+#    n = 50,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+#  
+#  # Using the helper function for initialization
+#  expgrad <- run_expgrad(converter, data,
+#    x_ref = NULL,
+#    n = 50,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
+
+## ---------------------------------------------------------------------------------------
+library(neuralnet)
+set.seed(42)
+
+# Crate model with package 'neuralnet'
+model <- neuralnet(Species ~ ., iris, linear.output = FALSE)
+
+# Step 1: Create 'Converter'
+conv <- convert(model)
+
+# Step 2: Apply Expected Gradient
+expgrad <- run_expgrad(conv, iris[c(1, 60), -5],
+  data_ref = iris[, -5], ignore_last_act = FALSE,
+  n = 10000
+)
+
+# Verify exact decomposition
+y <- predict(model, iris[, -5])
+delta_y <- y[c(1, 60), ] - rbind(colMeans(y), colMeans(y))
+summed_decomposition <- apply(get_result(expgrad), c(1, 3), FUN = sum) # dim 2 is the input feature dim
+
+# Show the error between both
+delta_y - summed_decomposition
+
+## ---- eval = FALSE----------------------------------------------------------------------
+#  # R6 class syntax
+#  deepshap <- DeepSHAP$new(converter, data,
+#    data_ref = NULL,
+#    limit_ref = 100,
+#    ... # other arguments inherited from 'DeepLift'
+#  )
+#  
+#  # Using the helper function for initialization
+#  deepshap <- run_deepshap(converter, data,
+#    data_ref = NULL,
+#    limit_ref = 100,
+#    ... # other arguments inherited from 'DeepLift'
+#  )
+
+## ---------------------------------------------------------------------------------------
+library(neuralnet)
+set.seed(42)
+
+# Crate model with package 'neuralnet'
+model <- neuralnet(Species ~ ., iris, linear.output = FALSE)
+
+# Step 1: Create 'Converter'
+conv <- convert(model)
+
+# Step 2: Apply Expected Gradient
+deepshap <- run_deepshap(conv, iris[c(1, 60), -5],
+  data_ref = iris[, -5], ignore_last_act = FALSE,
+  limit_ref = nrow(iris)
+)
+
+# Verify exact decomposition
+y <- predict(model, iris[, -5])
+delta_y <- y[c(1, 60), ] - rbind(colMeans(y), colMeans(y))
+summed_decomposition <- apply(get_result(deepshap), c(1, 3), FUN = sum) # dim 2 is the input feature dim
+
+# Show the error between both
+delta_y - summed_decomposition
+
+## ---- eval = FALSE----------------------------------------------------------------------
 #  # The global variant (argument 'data' is no longer required)
 #  cw_global <- ConnectionWeights$new(converter,
 #    times_input = FALSE,
@@ -742,10 +904,16 @@ mean((delta_y - summed_decomposition)^2)
 #    times_input = TRUE,
 #    ... # other arguments inherited from 'InterpretingMethod'
 #  )
+#  
+#  # Using the helper function
+#  cw_local <- run_cw(converter, data,
+#    times_input = TRUE,
+#    ... # other arguments inherited from 'InterpretingMethod'
+#  )
 
 ## ---------------------------------------------------------------------------------------
 # Apply global Connection Weights method
-cw_global <- ConnectionWeights$new(converter, times_input = FALSE)
+cw_global <- run_cw(converter, times_input = FALSE)
 
 # Show the result
 get_result(cw_global)
@@ -755,7 +923,7 @@ get_result(cw_global)
 data <- array(c(0.1, 0.4, 0.6), dim = c(3, 1))
 
 # Apply local Connection Weights method
-cw_local <- ConnectionWeights$new(converter, data, times_input = TRUE)
+cw_local <- run_cw(converter, data, times_input = TRUE)
 
 # Show the result
 get_result(cw_local)
@@ -794,17 +962,17 @@ img_model <- nn_sequential(
 )
 
 # Create converter
-tab_conv <- Converter$new(tab_model,
+tab_conv <- convert(tab_model,
   input_dim = c(4),
   input_names = tab_names,
   output_names = out_names
 )
 
-img_conv <- Converter$new(img_model, input_dim = c(3, 32, 32))
+img_conv <- convert(img_model, input_dim = c(3, 32, 32))
 
 # Apply Gradient x Input
-tab_grad <- Gradient$new(tab_conv, tab_data, times_input = TRUE)
-img_grad <- Gradient$new(img_conv, img_data, times_input = TRUE)
+tab_grad <- run_grad(tab_conv, tab_data, times_input = TRUE)
+img_grad <- run_grad(img_conv, img_data, times_input = TRUE)
 
 ## ---- eval = FALSE----------------------------------------------------------------------
 #  # You can use the class method
@@ -814,7 +982,7 @@ img_grad <- Gradient$new(img_conv, img_data, times_input = TRUE)
 
 ## ---- eval = torch::torch_is_installed() & keras::is_keras_available()------------------
 # Apply method 'Gradient x Input' for classes 1 ('setosa')  and 3 ('virginica')
-tab_grad <- Gradient$new(tab_conv, tab_data,
+tab_grad <- run_grad(tab_conv, tab_data,
   output_idx = c(1, 3),
   times_input = TRUE
 )
@@ -828,7 +996,7 @@ result_array[c(1, 10), , ]
 
 ## ---- eval = torch::torch_is_installed() & keras::is_keras_available()------------------
 # Apply method 'Gradient' for outputs 1  and 2
-img_grad <- Gradient$new(img_conv, img_data, output_idx = c(1, 2))
+img_grad <- run_grad(img_conv, img_data, output_idx = c(1, 2))
 # Get result
 result_array <- img_grad$get_result()
 # You can also use the S3 function 'get_result'
@@ -854,7 +1022,7 @@ model <- keras_model(
   outputs = output
 )
 
-conv <- Converter$new(model)
+conv <- convert(model)
 data <- lapply(
   list(c(10, 10, 2), c(11)),
   function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
@@ -862,7 +1030,7 @@ data <- lapply(
 
 ## ---- eval = torch::torch_is_installed() & keras::is_keras_available()------------------
 # Apply method 'Gradient' for outputs 1  and 2
-grad <- Gradient$new(conv, data, output_idx = c(1, 2), channels_first = FALSE)
+grad <- run_grad(conv, data, output_idx = c(1, 2), channels_first = FALSE)
 # Get result
 result_array <- grad$get_result()
 # You can also use the S3 function 'get_result'
@@ -891,7 +1059,7 @@ model <- keras_model(
   outputs = c(first_output, second_output)
 )
 
-conv <- Converter$new(model)
+conv <- convert(model)
 data <- lapply(
   list(c(10, 10, 2), c(11)),
   function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
@@ -900,7 +1068,7 @@ data <- lapply(
 ## ---- eval = torch::torch_is_installed() & keras::is_keras_available()------------------
 # Apply method 'Gradient' for outputs 1 and 2 in the first and
 # for outputs 1 and 3 in the second output layer
-grad <- Gradient$new(conv, data,
+grad <- run_grad(conv, data,
   output_idx = list(c(1, 2), c(1, 3)),
   channels_first = FALSE
 )
@@ -949,24 +1117,28 @@ ggplot(df) +
 #  method$plot(
 #    data_idx = 1,
 #    output_idx = NULL,
+#    output_label = NULL,
 #    aggr_channels = "sum",
 #    as_plotly = FALSE,
-#    same_scale = FALSE
+#    same_scale = FALSE,
+#    show_preds = TRUE
 #  )
 #  
 #  # or the S3 method
 #  plot(method,
 #    data_idx = 1,
 #    output_idx = NULL,
+#    output_label = NULL,
 #    aggr_channels = "sum",
 #    as_plotly = FALSE,
-#    same_scale = FALSE
+#    same_scale = FALSE,
+#    show_preds = TRUE
 #  )
 
 ## ---- fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Create plot for output classes '1' (setosa) and '3' (virginica) and
+# Create plot for output classes 'setosa' and  'virginica' and
 # data points '1' and '70'
-p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
+p <- plot(tab_grad, output_label = c("setosa", "virginica"), data_idx = c(1, 70))
 
 # Although it's not a ggplot2 object ...
 class(p)
@@ -1033,7 +1205,7 @@ plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 
 ## ---- eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  # Class method
-#  method$boxplot(
+#  method$plot_global(
 #    output_idx = NULL,
 #    data_idx = "all",
 #    ref_data_idx = NULL,
@@ -1045,7 +1217,7 @@ plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 #  )
 #  
 #  # or the S3 method
-#  boxplot(method,
+#  plot_global(method,
 #    output_idx = NULL,
 #    data_idx = "all",
 #    ref_data_idx = NULL,
@@ -1055,6 +1227,9 @@ plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 #    individual_data_idx = NULL,
 #    individual_max = 20
 #  )
+#  
+#  # or the alias for tabular or signal data
+#  boxplot(...)
 
 ## ---- fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create a boxplot for output classes '1' (setosa) and '3' (virginica)
@@ -1094,9 +1269,10 @@ boxplot(tab_grad, output_idx = c(1, 3), data_idx = 1:50, ref_data_idx = c(60))
 #  plotly::config(print(p))
 
 ## ---- fig.width=8, fig.height=4, eval = torch::torch_is_installed() & keras::is_keras_available()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# We can do the same for models with image data. In addition, you can define
+# We can do the same for models with image data (but have to use the method
+# `plot_global`, since no boxplots are created). In addition, you can define
 # the aggregation function for the channels
-p <- boxplot(img_grad, output_idx = c(1, 2), aggr_channels = "norm")
+p <- plot_global(img_grad, output_idx = c(1, 2), aggr_channels = "norm")
 
 # Although it's not a ggplot2 object ...
 class(p)
@@ -1109,7 +1285,7 @@ p +
 
 ## ---- fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  # You can do the same with the plotly-based plots
-#  p <- boxplot(img_grad,
+#  p <- plot_global(img_grad,
 #    output_idx = c(1, 2), aggr_channels = "norm",
 #    as_plotly = TRUE
 #  )
@@ -1121,7 +1297,7 @@ p +
 
 ## ---- fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  # You can do the same with the plotly-based plots
-#  p <- boxplot(img_grad,
+#  p <- plot_global(img_grad,
 #    output_idx = c(1, 2), aggr_channels = "norm",
 #    as_plotly = TRUE
 #  )
@@ -1137,10 +1313,10 @@ model <- keras_model_sequential() %>%
   layer_dense(20, activation = "relu") %>%
   layer_dense(3, activation = "softmax")
 
-converter <- Converter$new(model)
+converter <- convert(model)
 
 data <- array(rnorm(5 * 50), dim = c(50, 5))
-res_simple <- Gradient$new(converter, data)
+res_simple <- run_grad(converter, data)
 
 # Create model with images as inputs and two output layers
 input_image <- layer_input(shape = c(10, 10, 3))
@@ -1164,10 +1340,10 @@ keras_model_concat <- keras_model(
   outputs = c(output_1, output_2)
 )
 
-converter <- Converter$new(keras_model_concat)
+converter <- convert(keras_model_concat)
 
 data <- array(rnorm(10 * 10 * 3 * 5), dim = c(5, 10, 10, 3))
-res_one_input <- Gradient$new(converter, data,
+res_one_input <- run_grad(converter, data,
   channels_first = FALSE,
   output_idx = list(1:3, 1:3)
 )
@@ -1197,10 +1373,10 @@ keras_model_concat <- keras_model(
   outputs = list(output_1, output_2)
 )
 
-converter <- Converter$new(keras_model_concat)
+converter <- convert(keras_model_concat)
 
 data <- lapply(list(c(10, 10, 3), c(10)), function(x) torch_randn(c(5, x)))
-res_two_inputs <- Gradient$new(converter, data,
+res_two_inputs <- run_grad(converter, data,
   times_input = TRUE,
   channels_first = FALSE,
   output_idx = list(1:3, 1:3)

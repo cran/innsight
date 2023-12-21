@@ -151,7 +151,7 @@ input_names <-
 output_names <- c("Adelie", "Chinstrap", "Gentoo")
 
 # Create the `Converter` object
-converter_1 <- Converter$new(model,
+converter_1 <- convert(model,
   input_dim = 10,
   input_names = input_names,
   output_names = output_names
@@ -159,7 +159,7 @@ converter_1 <- Converter$new(model,
 
 ## ---------------------------------------------------------------------------------------
 # Create a second `Converter` object for combined categorical features
-converter_2 <- Converter$new(model,
+converter_2 <- convert(model,
   input_dim = 10,
   output_names = output_names
 )
@@ -168,14 +168,14 @@ converter_2 <- Converter$new(model,
 # Data to be analyzed (in this case, we use the whole dataset)
 data <- test_ds$x
 # Apply method 'LRP' with rule alpha-beta
-lrp_ab_1 <- LRP$new(converter_1, data, rule_name = "alpha_beta", rule_param = 2)
+lrp_ab_1 <- run_lrp(converter_1, data, rule_name = "alpha_beta", rule_param = 2)
 
 # the result for 333 instances, 10 inputs and all 3 outputs
 dim(get_result(lrp_ab_1))
 
 ## ---- results='hide', message=FALSE-----------------------------------------------------
 # Apply method as in the other case
-lrp_ab_2 <- LRP$new(converter_2, data, rule_name = "alpha_beta", rule_param = 2)
+lrp_ab_2 <- run_lrp(converter_2, data, rule_name = "alpha_beta", rule_param = 2)
 
 # Adjust input dimension and input names in the method converter object
 lrp_ab_2$converter$input_dim[[1]] <- 7

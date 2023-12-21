@@ -1,7 +1,7 @@
-#' Connection Weights method
+#' Connection weights method
 #'
 #' @description
-#' This class implements the *Connection Weights* method investigated by
+#' This class implements the *Connection weights* method investigated by
 #' Olden et al. (2004), which results in a relevance score for each input
 #' variable. The basic idea is to multiply all path weights for each
 #' possible connection between an input feature and the output node and then
@@ -14,9 +14,12 @@
 #'
 #' In this package, we extended this method to a local method inspired by the
 #' method *Gradient\eqn{\times}Input* (see [`Gradient`]). Hence, the local variant is
-#' simply the point-wise product of the global *Connection Weights* method and
+#' simply the point-wise product of the global *Connection weights* method and
 #' the input data. You can use this variant by setting the `times_input`
 #' argument to `TRUE` and providing input data.
+#'
+#' The R6 class can also be initialized using the [`run_cw`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
 #'
 #' @template examples-ConnectionWeights
 #' @template param-converter
@@ -24,6 +27,7 @@
 #' @template param-channels_first
 #' @template param-dtype
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-verbose
 #'
 #' @references
@@ -39,7 +43,7 @@ ConnectionWeights <- R6Class(
   public = list(
     #' @field times_input (`logical(1)`)\cr
     #' This logical value indicates whether the results from
-    #' the *Connection Weights* method were multiplied by the provided input
+    #' the *Connection weights* method were multiplied by the provided input
     #' data or not. Thus, this value specifies whether the original global
     #' variant of the method or the local one was applied. If the value is
     #' `TRUE`, then data is provided in the field `data`.
@@ -52,11 +56,12 @@ ConnectionWeights <- R6Class(
     #'
     #' @param times_input (`logical(1)`)\cr
     #' Multiplies the results with the input features.
-    #' This variant turns the global *Connection Weights* method into a local
+    #' This variant turns the global *Connection weights* method into a local
     #' one. Default: `FALSE`.\cr
     initialize = function(converter,
                           data = NULL,
                           output_idx = NULL,
+                          output_label = NULL,
                           channels_first = TRUE,
                           times_input = FALSE,
                           verbose = interactive(),
@@ -77,8 +82,11 @@ ConnectionWeights <- R6Class(
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
-      # Check output indices
-      self$output_idx <- check_output_idx(output_idx, converter$output_dim)
+      # Check output indices and labels
+      outputs <- check_output_idx(output_idx, converter$output_dim,
+                                  output_label, converter$output_names)
+      self$output_idx <- outputs[[1]]
+      self$output_label <- outputs[[2]]
 
       if (times_input & is.null(data)) {
         stopf(
@@ -127,9 +135,3 @@ ConnectionWeights <- R6Class(
   )
 )
 
-
-#' @importFrom graphics boxplot
-#' @exportS3Method
-boxplot.ConnectionWeights <- function(x, ...) {
-  x$boxplot(...)
-}
