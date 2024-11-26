@@ -1,7 +1,7 @@
 Type: Package
 Package: innsight
 Title: Get the Insights of Your Neural Network
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
     person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4623-8271")),
@@ -14,10 +14,12 @@ Description: Interpretation methods for analyzing the behavior and individual
     <doi:10.1016/j.ecolmodel.2004.03.013>, layer-wise relevance
     propagation ('LRP') described by Bach et al. (2015)
     <doi:10.1371/journal.pone.0130140>, deep learning important features
-    ('DeepLIFT') described by Shrikumar et al.  (2017) <arXiv:1704.02685>
+    ('DeepLIFT') described by Shrikumar et al.  (2017) <doi:10.48550/arXiv.1704.02685>
     and gradient-based methods like 'SmoothGrad' described by Smilkov et
-    al. (2017) <arXiv:1706.03825>, 'Gradient x Input' described by
-    Baehrens et al. (2009) <arXiv:0912.1128> or 'Vanilla Gradient'.
+    al. (2017) <doi:10.48550/arXiv.1706.03825>, 'Gradient x Input' 
+    or 'Vanilla Gradient'.
+    Details can be found in the accompanying scientific paper: Koenen & Wright 
+    (2024, Journal of Statistical Software, <doi:10.18637/jss.v111.i08>).
 License: MIT + file LICENSE
 URL: https://bips-hb.github.io/innsight/,
         https://github.com/bips-hb/innsight/
@@ -41,9 +43,9 @@ Collate: 'AgnosticMethods.R' 'AgnosticWrapper.R' 'ConnectionWeights.R'
         'innsight.R' 'utils.R' 'utils_ggplot.R' 'utils_plotly.R'
         'innsight_sugar.R' 'innsight_ggplot2.R' 'innsight_plotly.R'
 NeedsCompilation: no
-Packaged: 2023-12-21 15:33:01 UTC; niklas
+Packaged: 2024-11-25 21:05:03 UTC; niklas
 Author: Niklas Koenen [aut, cre] (<https://orcid.org/0000-0002-4623-8271>),
   Raphael Baudeu [ctb]
 Maintainer: Niklas Koenen <niklas.koenen@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-12-21 16:00:02 UTC
+Date/Publication: 2024-11-26 09:50:02 UTC

@@ -21,6 +21,7 @@ coverage](https://codecov.io/gh/bips-hb/innsight/branch/master/graph/badge.svg)]
 - [Usage](#usage)
 - [Examples](#examples)
 - [Contributing and future work](#contributing-and-future-work)
+- [Citation](#citation)
 - [Funding](#funding)
 
 ## Introduction
@@ -80,8 +81,7 @@ for details).
 
 The package can be installed directly from CRAN and the development
 version from GitHub with the following commands (successful installation
-of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
-required)
+of [`devtools`](https://devtools.r-lib.org/) is required)
 
 ``` r
 # Stable version
@@ -179,6 +179,21 @@ this package. Currently, we are working on the following:
 - [ ] More methods, e.g. Grad-CAM, etc.
 - [ ] More examples and documentation (contact me if you have a
   non-trivial application for me)
+
+## Citation
+
+If you use this package in your research, please cite it as follows:
+
+    @Article{,
+        title = {Interpreting Deep Neural Networks with the Package {innsight}},
+        author = {Niklas Koenen and Marvin N. Wright},
+        journal = {Journal of Statistical Software},
+        year = {2024},
+        volume = {111},
+        number = {8},
+        pages = {1--52},
+        doi = {10.18637/jss.v111.i08},
+    }
 
 ## Funding
 

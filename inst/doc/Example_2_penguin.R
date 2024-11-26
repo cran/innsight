@@ -1,4 +1,4 @@
-## ---- include = FALSE-------------------------------------------------------------------
+## ----include = FALSE--------------------------------------------------------------------
 knitr::opts_chunk$set(
   fig.dpi = ifelse(Sys.getenv("RENDER_PLOTLY", unset = 0) == 1, 400, 50),
   collapse = TRUE,
@@ -9,12 +9,12 @@ knitr::opts_chunk$set(
     torch::torch_is_installed()
 )
 
-## ---- echo = FALSE----------------------------------------------------------------------
+## ----echo = FALSE-----------------------------------------------------------------------
 Sys.setenv(LANG = "en_US.UTF-8")
 set.seed(111)
 torch::torch_manual_seed(111)
 
-## ---- warning=FALSE, fig.width=12, fig.height=8, message=FALSE--------------------------
+## ----warning=FALSE, fig.width=12, fig.height=8, message=FALSE---------------------------
 library(palmerpenguins)
 
 # remove NAs
@@ -173,7 +173,7 @@ lrp_ab_1 <- run_lrp(converter_1, data, rule_name = "alpha_beta", rule_param = 2)
 # the result for 333 instances, 10 inputs and all 3 outputs
 dim(get_result(lrp_ab_1))
 
-## ---- results='hide', message=FALSE-----------------------------------------------------
+## ----results='hide', message=FALSE------------------------------------------------------
 # Apply method as in the other case
 lrp_ab_2 <- run_lrp(converter_2, data, rule_name = "alpha_beta", rule_param = 2)
 
@@ -198,7 +198,7 @@ dim = 2
 dim(get_result(lrp_ab_2))
 #> [1] 333  7  3
 
-## ---- fig.width=8-----------------------------------------------------------------------
+## ----fig.width=8------------------------------------------------------------------------
 library(ggplot2)
 # Separated categorical features
 plot(lrp_ab_1, output_idx = c(1, 3)) +
@@ -207,10 +207,10 @@ plot(lrp_ab_1, output_idx = c(1, 3)) +
 plot(lrp_ab_2, output_idx = c(1, 3)) +
   coord_flip()
 
-## ---- echo = FALSE----------------------------------------------------------------------
+## ----echo = FALSE-----------------------------------------------------------------------
 knitr::kable(penguin_data[1, ])
 
-## ---- fig.width=8-----------------------------------------------------------------------
+## ----fig.width=8------------------------------------------------------------------------
 library(ggplot2)
 
 boxplot(lrp_ab_2,
