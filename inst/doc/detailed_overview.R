@@ -11,22 +11,22 @@ knitr::opts_chunk$set(
 library(innsight)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  converter <- Converter$new(model,
-#    input_dim = NULL,
-#    input_names = NULL,
-#    output_names = NULL,
-#    dtype = "float",
-#    save_model_as_list = FALSE
-#  )
+# converter <- Converter$new(model,
+#   input_dim = NULL,
+#   input_names = NULL,
+#   output_names = NULL,
+#   dtype = "float",
+#   save_model_as_list = FALSE
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  converter <- convert(model,
-#    input_dim = NULL,
-#    input_names = NULL,
-#    output_names = NULL,
-#    dtype = "float",
-#    save_model_as_list = FALSE
-#  )
+# converter <- convert(model,
+#   input_dim = NULL,
+#   input_names = NULL,
+#   output_names = NULL,
+#   dtype = "float",
+#   save_model_as_list = FALSE
+# )
 
 ## ---------------------------------------------------------------------------------------
 library(torch)
@@ -46,7 +46,7 @@ torch_model <- nn_sequential(
 # For torch models the optional argument `input_dim` becomes a necessary one
 converter <- convert(torch_model, input_dim = c(3, 10, 10))
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 library(keras)
 
 # Create model
@@ -59,7 +59,7 @@ keras_model_seq <- keras_model_seq %>%
 
 converter <- convert(keras_model_seq)
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 library(keras)
 
 input_image <- layer_input(shape = c(10, 10, 3))
@@ -99,22 +99,22 @@ converter$input_names
 converter$output_names
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  model$input_dim <- c(5)
+# model$input_dim <- c(5)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  input_dim <- list(c(10), c(3, 10, 10)) # channels have to be first!
+# input_dim <- list(c(10), c(3, 10, 10)) # channels have to be first!
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  model$input_names <- c("Feature_1", "Feature_2")
+# model$input_names <- c("Feature_1", "Feature_2")
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  model$input_names <- list(c("C1", "C2"), c("H1", "H2"), c("W1", "W2"))
+# model$input_names <- list(c("C1", "C2"), c("H1", "H2"), c("W1", "W2"))
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  model$input_names <- list(
-#    list(c("Feature_1", "Feature_2")),
-#    list(c("C1", "C2"), c("H1", "H2"), c("W1", "W2"))
-#  )
+# model$input_names <- list(
+#   list(c("Feature_1", "Feature_2")),
+#   list(c("C1", "C2"), c("H1", "H2"), c("W1", "W2"))
+# )
 
 ## ---------------------------------------------------------------------------------------
 # Define dense layer
@@ -130,168 +130,168 @@ dense_layer <- list(
 )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # 1D convolutional layer
-#  conv_1D <- list(
-#    type = "Conv1D",
-#    input_layers = 1,
-#    output_layers = 3,
-#    weight = array(rnorm(8 * 3 * 2), dim = c(8, 3, 2)),
-#    bias = rnorm(8),
-#    padding = c(2, 1),
-#    activation_name = "tanh",
-#    dim_in = c(3, 10), # optional
-#    dim_out = c(8, 9) # optional
-#  )
-#  
-#  # 2D convolutional layer
-#  conv_2D <- list(
-#    type = "Conv2D",
-#    input_layes = 3,
-#    output_layers = 5,
-#    weight = array(rnorm(8 * 3 * 2 * 4), dim = c(8, 3, 2, 4)),
-#    bias = rnorm(8),
-#    padding = c(1, 1, 0, 0),
-#    dilation = c(1, 2),
-#    activation_name = "relu",
-#    dim_in = c(3, 10, 10) # optional
-#  )
+# # 1D convolutional layer
+# conv_1D <- list(
+#   type = "Conv1D",
+#   input_layers = 1,
+#   output_layers = 3,
+#   weight = array(rnorm(8 * 3 * 2), dim = c(8, 3, 2)),
+#   bias = rnorm(8),
+#   padding = c(2, 1),
+#   activation_name = "tanh",
+#   dim_in = c(3, 10), # optional
+#   dim_out = c(8, 9) # optional
+# )
+# 
+# # 2D convolutional layer
+# conv_2D <- list(
+#   type = "Conv2D",
+#   input_layes = 3,
+#   output_layers = 5,
+#   weight = array(rnorm(8 * 3 * 2 * 4), dim = c(8, 3, 2, 4)),
+#   bias = rnorm(8),
+#   padding = c(1, 1, 0, 0),
+#   dilation = c(1, 2),
+#   activation_name = "relu",
+#   dim_in = c(3, 10, 10) # optional
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # 2D average pooling layer
-#  avg_pool2D <- list(
-#    type = "AveragePooling2D",
-#    input_layers = 1,
-#    output_layers = 3,
-#    kernel_size = c(2, 2)
-#  )
+# # 2D average pooling layer
+# avg_pool2D <- list(
+#   type = "AveragePooling2D",
+#   input_layers = 1,
+#   output_layers = 3,
+#   kernel_size = c(2, 2)
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # batch normalization layer
-#  batchnorm <- list(
-#    type = "BatchNorm",
-#    input_layers = 1,
-#    output_layers = 3,
-#    num_features = 3,
-#    eps = 1e-4,
-#    gamma = c(1.1, 0.0, -0.3),
-#    beta = c(1, -3, -1.4),
-#    run_mean = c(-1.9, 3, 2.3),
-#    run_var = c(1, 2.1, 3.5)
-#  )
+# # batch normalization layer
+# batchnorm <- list(
+#   type = "BatchNorm",
+#   input_layers = 1,
+#   output_layers = 3,
+#   num_features = 3,
+#   eps = 1e-4,
+#   gamma = c(1.1, 0.0, -0.3),
+#   beta = c(1, -3, -1.4),
+#   run_mean = c(-1.9, 3, 2.3),
+#   run_var = c(1, 2.1, 3.5)
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # flatten layer
-#  flatten <- list(
-#    type = "Flatten",
-#    input_layers = 1,
-#    output_layers = 3,
-#    start_dim = 2, # optional
-#    end_dim = 4, # optional
-#    dim_in = c(3, 10, 10), # optional
-#    out_dim = c(300) # optional
-#  )
+# # flatten layer
+# flatten <- list(
+#   type = "Flatten",
+#   input_layers = 1,
+#   output_layers = 3,
+#   start_dim = 2, # optional
+#   end_dim = 4, # optional
+#   dim_in = c(3, 10, 10), # optional
+#   out_dim = c(300) # optional
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # global MaxPooling layer
-#  global_max_pool2D <- list(
-#    type = "GlobalPooling",
-#    input_layers = 1,
-#    output_layers = 3,
-#    method = "max",
-#    dim_in = c(3, 10, 10), # optional
-#    out_dim = c(3) # optional
-#  )
-#  
-#  # global AvgPooling layer
-#  global_avg_pool1D <- list(
-#    type = "GlobalPooling",
-#    input_layers = 1,
-#    output_layers = 3,
-#    method = "average",
-#    dim_in = c(3, 10), # optional
-#    out_dim = c(3) # optional
-#  )
+# # global MaxPooling layer
+# global_max_pool2D <- list(
+#   type = "GlobalPooling",
+#   input_layers = 1,
+#   output_layers = 3,
+#   method = "max",
+#   dim_in = c(3, 10, 10), # optional
+#   out_dim = c(3) # optional
+# )
+# 
+# # global AvgPooling layer
+# global_avg_pool1D <- list(
+#   type = "GlobalPooling",
+#   input_layers = 1,
+#   output_layers = 3,
+#   method = "average",
+#   dim_in = c(3, 10), # optional
+#   out_dim = c(3) # optional
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # padding layer
-#  padding <- list(
-#    type = "Padding",
-#    input_layers = 1,
-#    output_layers = 3,
-#    padding = c(2, 4),
-#    mode = "constant",
-#    value = 1,
-#    dim_in = c(3, 10), # optional
-#    out_dim = c(3, 16) # optional
-#  )
+# # padding layer
+# padding <- list(
+#   type = "Padding",
+#   input_layers = 1,
+#   output_layers = 3,
+#   padding = c(2, 4),
+#   mode = "constant",
+#   value = 1,
+#   dim_in = c(3, 10), # optional
+#   out_dim = c(3, 16) # optional
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # concatenation layer
-#  concat <- list(
-#    type = "Concatenation",
-#    input_layers = c(1, 3),
-#    output_layers = 5,
-#    dim = 2,
-#    dim_in = list(c(5), c(3)), # optional
-#    out_dim = c(8) # optional
-#  )
+# # concatenation layer
+# concat <- list(
+#   type = "Concatenation",
+#   input_layers = c(1, 3),
+#   output_layers = 5,
+#   dim = 2,
+#   dim_in = list(c(5), c(3)), # optional
+#   out_dim = c(8) # optional
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # adding layer
-#  add <- list(
-#    type = "Add",
-#    input_layers = c(1, 3),
-#    output_layers = 5,
-#    dim_in = list(c(3, 10, 10), c(3, 10, 10)), # optional
-#    out_dim = c(3, 10, 10) # optional
-#  )
+# # adding layer
+# add <- list(
+#   type = "Add",
+#   input_layers = c(1, 3),
+#   output_layers = 5,
+#   dim_in = list(c(3, 10, 10), c(3, 10, 10)), # optional
+#   out_dim = c(3, 10, 10) # optional
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  list(c("set", "your", "labels", "here!"))
-#  # or as a factor
-#  list(
-#    factor(c("set", "your", "labels", "here"),
-#      levels = c("labels", "set", "your", "here")
-#    )
-#  )
+# list(c("set", "your", "labels", "here!"))
+# # or as a factor
+# list(
+#   factor(c("set", "your", "labels", "here"),
+#     levels = c("labels", "set", "your", "here")
+#   )
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  list(
-#    c("channels", "are", "first"),
-#    c("Length1", "Length2", "Length3", "Length4", "Length5", "Length6")
-#  )
+# list(
+#   c("channels", "are", "first"),
+#   c("Length1", "Length2", "Length3", "Length4", "Length5", "Length6")
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  list(
-#    c("channels", "are", "first"),
-#    c("then", "comes", "the", "image height"),
-#    c("and", "then", "the", "width")
-#  )
+# list(
+#   c("channels", "are", "first"),
+#   c("then", "comes", "the", "image height"),
+#   c("and", "then", "the", "width")
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  list(
-#    # first input layer
-#    list(c("Feat_1", "Feat_2", "Feat_3", "Feat_4")),
-#    # second input layer
-#    list(
-#      c("C1", "C2", "C3"),
-#      c("Height_1", "Height_2", "Height_3", "Height_4"),
-#      c("W1", "W2", "W3", "W4")
-#    )
-#  )
+# list(
+#   # first input layer
+#   list(c("Feat_1", "Feat_2", "Feat_3", "Feat_4")),
+#   # second input layer
+#   list(
+#     c("C1", "C2", "C3"),
+#     c("Height_1", "Height_2", "Height_3", "Height_4"),
+#     c("W1", "W2", "W3", "W4")
+#   )
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  c("First output node", "second one", "last output node")
-#  # or as a factor
-#  factor(c("First output node", "second one", "last output node"),
-#    levels = c("last output node", "First output node", "second one", )
-#  )
+# c("First output node", "second one", "last output node")
+# # or as a factor
+# factor(c("First output node", "second one", "last output node"),
+#   levels = c("last output node", "First output node", "second one", )
+# )
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  list(
-#    c("Yes", "No!"),
-#    c("Out1", "Out2", "Out3", "Out4")
-#  )
+# list(
+#   c("Yes", "No!"),
+#   c("Out1", "Out2", "Out3", "Out4")
+# )
 
 ## ---------------------------------------------------------------------------------------
 torch_manual_seed(123)
@@ -320,14 +320,14 @@ res2 <- sum(A[1, ] * B[, 1])
 # difference:
 res1 - res2
 
-## ---------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 # Convert the model and save the model as a list
 converter <- convert(keras_model_concat, save_model_as_list = TRUE)
 
 # Get the field `input_dim`
 converter$input_dim
 
-## ---------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 # create input in the format "channels last"
 x <- list(
   array(rnorm(3 * 10 * 10), dim = c(1, 10, 10, 3)),
@@ -343,7 +343,7 @@ y <- as.array(converter$model(x, channels_first = FALSE)[[1]])
 # mean squared error
 mean((y - y_true)**2)
 
-## ---------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 # get the calculated output dimension
 str(converter$output_dim)
 # get the generated output names (one layer with three output nodes)
@@ -351,7 +351,7 @@ str(converter$output_names)
 # get the generated input names
 str(converter$input_names)
 
-## ---------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 # get the mode as a list
 model_as_list <- converter$model_as_list
 # print the fourth layer
@@ -373,15 +373,15 @@ options(width = 90)
 converter
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # Apply the selected method
-#  method <- Method$new(converter, data,
-#    channels_first = TRUE,
-#    output_idx = NULL,
-#    output_label = NULL,
-#    ignore_last_act = TRUE,
-#    verbose = interactive(),
-#    dtype = "float"
-#  )
+# # Apply the selected method
+# method <- Method$new(converter, data,
+#   channels_first = TRUE,
+#   output_idx = NULL,
+#   output_label = NULL,
+#   ignore_last_act = TRUE,
+#   verbose = interactive(),
+#   dtype = "float"
+# )
 
 ## ----eval = TRUE, echo=FALSE, fig.cap = "**Fig. 1:** Example neural network", out.width = "80%"----
 knitr::include_graphics("images/example_net.png")
@@ -416,17 +416,17 @@ model <- list(
 converter <- convert(model)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # R6 class syntax
-#  grad <- Gradient$new(converter, data,
-#    times_input = FALSE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # Using the helper function
-#  grad <- run_grad(converter, data,
-#    times_input = FALSE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
+# # R6 class syntax
+# grad <- Gradient$new(converter, data,
+#   times_input = FALSE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # Using the helper function
+# grad <- run_grad(converter, data,
+#   times_input = FALSE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
 
 ## ----echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 2:** Gradient method"----
 library(ggplot2)
@@ -481,21 +481,21 @@ grad <- run_grad(converter, data, ignore_last_act = FALSE)
 get_result(grad)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # R6 class syntax
-#  smoothgrad <- SmoothGrad$new(converter, data,
-#    n = 50,
-#    noise_level = 0.1,
-#    times_input = FALSE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # Using the helper function
-#  smoothgrad <- run_smoothgrad(converter, data,
-#    n = 50,
-#    noise_level = 0.1,
-#    times_input = FALSE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
+# # R6 class syntax
+# smoothgrad <- SmoothGrad$new(converter, data,
+#   n = 50,
+#   noise_level = 0.1,
+#   times_input = FALSE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # Using the helper function
+# smoothgrad <- run_smoothgrad(converter, data,
+#   n = 50,
+#   noise_level = 0.1,
+#   times_input = FALSE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
 
 ## ----echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 3:** SmoothGrad method"----
 set.seed(111)
@@ -556,29 +556,29 @@ smoothgrad <- run_smoothgrad(converter, data,
 get_result(smoothgrad)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # the "x Input" variant of method "Gradient"
-#  grad_x_input <- Gradient$new(converter, data,
-#    times_input = TRUE,
-#    ... # other arguments of method "Gradient"
-#  )
-#  
-#  # the same using the corresponding helper function
-#  grad_x_input <- run_grad(converter, data,
-#    times_input = TRUE,
-#    ... # other arguments of method "Gradient"
-#  )
-#  
-#  # the "x Input" variant of method "SmoothGrad"
-#  smoothgrad_x_input <- SmoothGrad$new(converter, data,
-#    times_input = TRUE,
-#    ... # other arguments of method "SmoothGrad"
-#  )
-#  
-#  # the same using the corresponding helper function
-#  smoothgrad_x_input <- run_smoothgrad(converter, data,
-#    times_input = TRUE,
-#    ... # other arguments of method "SmoothGrad"
-#  )
+# # the "x Input" variant of method "Gradient"
+# grad_x_input <- Gradient$new(converter, data,
+#   times_input = TRUE,
+#   ... # other arguments of method "Gradient"
+# )
+# 
+# # the same using the corresponding helper function
+# grad_x_input <- run_grad(converter, data,
+#   times_input = TRUE,
+#   ... # other arguments of method "Gradient"
+# )
+# 
+# # the "x Input" variant of method "SmoothGrad"
+# smoothgrad_x_input <- SmoothGrad$new(converter, data,
+#   times_input = TRUE,
+#   ... # other arguments of method "SmoothGrad"
+# )
+# 
+# # the same using the corresponding helper function
+# smoothgrad_x_input <- run_smoothgrad(converter, data,
+#   times_input = TRUE,
+#   ... # other arguments of method "SmoothGrad"
+# )
 
 ## ----echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 4:** Gradient$\\times$Input method"----
 base +
@@ -666,21 +666,21 @@ get_result(smoothgrad_x_input)
 knitr::include_graphics("images/lrp.png")
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # R6 class syntax
-#  lrp <- LRP$new(converter, data,
-#    rule_name = "simple",
-#    rule_param = NULL,
-#    winner_takes_all = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # Using the helper function for initialization
-#  lrp <- run_lrp(converter, data,
-#    rule_name = "simple",
-#    rule_param = NULL,
-#    winner_takes_all = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
+# # R6 class syntax
+# lrp <- LRP$new(converter, data,
+#   rule_name = "simple",
+#   rule_param = NULL,
+#   winner_takes_all = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # Using the helper function for initialization
+# lrp <- run_lrp(converter, data,
+#   rule_name = "simple",
+#   rule_param = NULL,
+#   winner_takes_all = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
 
 ## ---------------------------------------------------------------------------------------
 # We can analyze multiple inputs simultaneously
@@ -733,21 +733,21 @@ ggplot() +
   labs(color = "Rule")
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # R6 class syntax
-#  deeplift <- DeepLift$new(converter, data,
-#    x_ref = NULL,
-#    rule_name = "rescale",
-#    winner_takes_all = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # Using the helper function for initialization
-#  deeplift <- run_deeplift(converter, data,
-#    x_ref = NULL,
-#    rule_name = "rescale",
-#    winner_takes_all = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
+# # R6 class syntax
+# deeplift <- DeepLift$new(converter, data,
+#   x_ref = NULL,
+#   rule_name = "rescale",
+#   winner_takes_all = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # Using the helper function for initialization
+# deeplift <- run_deeplift(converter, data,
+#   x_ref = NULL,
+#   rule_name = "rescale",
+#   winner_takes_all = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
 
 ## ---------------------------------------------------------------------------------------
 # Create data
@@ -787,21 +787,21 @@ summed_decomposition <- apply(get_result(deeplift), c(1, 3), FUN = sum) # dim 2 
 mean((delta_y - summed_decomposition)^2)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # R6 class syntax
-#  intgrad <- IntegratedGradient$new(converter, data,
-#    x_ref = NULL,
-#    n = 50,
-#    times_input = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # Using the helper function for initialization
-#  intgrad <- run_intgrad(converter, data,
-#    x_ref = NULL,
-#    n = 50,
-#    times_input = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
+# # R6 class syntax
+# intgrad <- IntegratedGradient$new(converter, data,
+#   x_ref = NULL,
+#   n = 50,
+#   times_input = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # Using the helper function for initialization
+# intgrad <- run_intgrad(converter, data,
+#   x_ref = NULL,
+#   n = 50,
+#   times_input = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
 
 ## ---------------------------------------------------------------------------------------
 # Create data
@@ -815,19 +815,19 @@ intgrad <- run_intgrad(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
 get_result(intgrad)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # R6 class syntax
-#  expgrad <- ExpectedGradient$new(converter, data,
-#    data_ref = NULL,
-#    n = 50,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # Using the helper function for initialization
-#  expgrad <- run_expgrad(converter, data,
-#    x_ref = NULL,
-#    n = 50,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
+# # R6 class syntax
+# expgrad <- ExpectedGradient$new(converter, data,
+#   data_ref = NULL,
+#   n = 50,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # Using the helper function for initialization
+# expgrad <- run_expgrad(converter, data,
+#   x_ref = NULL,
+#   n = 50,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
 
 ## ---------------------------------------------------------------------------------------
 library(neuralnet)
@@ -854,19 +854,19 @@ summed_decomposition <- apply(get_result(expgrad), c(1, 3), FUN = sum) # dim 2 i
 delta_y - summed_decomposition
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # R6 class syntax
-#  deepshap <- DeepSHAP$new(converter, data,
-#    data_ref = NULL,
-#    limit_ref = 100,
-#    ... # other arguments inherited from 'DeepLift'
-#  )
-#  
-#  # Using the helper function for initialization
-#  deepshap <- run_deepshap(converter, data,
-#    data_ref = NULL,
-#    limit_ref = 100,
-#    ... # other arguments inherited from 'DeepLift'
-#  )
+# # R6 class syntax
+# deepshap <- DeepSHAP$new(converter, data,
+#   data_ref = NULL,
+#   limit_ref = 100,
+#   ... # other arguments inherited from 'DeepLift'
+# )
+# 
+# # Using the helper function for initialization
+# deepshap <- run_deepshap(converter, data,
+#   data_ref = NULL,
+#   limit_ref = 100,
+#   ... # other arguments inherited from 'DeepLift'
+# )
 
 ## ---------------------------------------------------------------------------------------
 library(neuralnet)
@@ -893,23 +893,23 @@ summed_decomposition <- apply(get_result(deepshap), c(1, 3), FUN = sum) # dim 2 
 delta_y - summed_decomposition
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # The global variant (argument 'data' is no longer required)
-#  cw_global <- ConnectionWeights$new(converter,
-#    times_input = FALSE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # The local variant (argument 'data' is required)
-#  cw_local <- ConnectionWeights$new(converter, data,
-#    times_input = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
-#  
-#  # Using the helper function
-#  cw_local <- run_cw(converter, data,
-#    times_input = TRUE,
-#    ... # other arguments inherited from 'InterpretingMethod'
-#  )
+# # The global variant (argument 'data' is no longer required)
+# cw_global <- ConnectionWeights$new(converter,
+#   times_input = FALSE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # The local variant (argument 'data' is required)
+# cw_local <- ConnectionWeights$new(converter, data,
+#   times_input = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
+# 
+# # Using the helper function
+# cw_local <- run_cw(converter, data,
+#   times_input = TRUE,
+#   ... # other arguments inherited from 'InterpretingMethod'
+# )
 
 ## ---------------------------------------------------------------------------------------
 # Apply global Connection Weights method
@@ -975,12 +975,12 @@ tab_grad <- run_grad(tab_conv, tab_data, times_input = TRUE)
 img_grad <- run_grad(img_conv, img_data, times_input = TRUE)
 
 ## ----eval = FALSE-----------------------------------------------------------------------
-#  # You can use the class method
-#  method$get_result(type = "array")
-#  # or you can use the S3 method
-#  get_result(method, type = "array")
+# # You can use the class method
+# method$get_result(type = "array")
+# # or you can use the S3 method
+# get_result(method, type = "array")
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ---------------------------------------------------------------------------------------
 # Apply method 'Gradient x Input' for classes 1 ('setosa')  and 3 ('virginica')
 tab_grad <- run_grad(tab_conv, tab_data,
   output_idx = c(1, 3),
@@ -994,7 +994,7 @@ result_array <- get_result(tab_grad)
 # Show the result for datapoint 1 and 10
 result_array[c(1, 10), , ]
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ---------------------------------------------------------------------------------------
 # Apply method 'Gradient' for outputs 1  and 2
 img_grad <- run_grad(img_conv, img_data, output_idx = c(1, 2))
 # Get result
@@ -1005,7 +1005,7 @@ result_array <- get_result(img_grad)
 # Show the result
 str(result_array)
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 library(keras)
 
 first_input <- layer_input(shape = c(10, 10, 2))
@@ -1028,7 +1028,7 @@ data <- lapply(
   function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
 )
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 # Apply method 'Gradient' for outputs 1  and 2
 grad <- run_grad(conv, data, output_idx = c(1, 2), channels_first = FALSE)
 # Get result
@@ -1039,7 +1039,7 @@ result_array <- get_result(grad)
 # Show the result
 str(result_array)
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 library(keras)
 
 first_input <- layer_input(shape = c(10, 10, 2))
@@ -1065,7 +1065,7 @@ data <- lapply(
   function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
 )
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()-------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()-------------------
 # Apply method 'Gradient' for outputs 1 and 2 in the first and
 # for outputs 1 and 3 in the second output layer
 grad <- run_grad(conv, data,
@@ -1083,13 +1083,13 @@ str(result_array)
 ## ----echo = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 options(width = 500)
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 head(get_result(tab_grad, "data.frame"), 5)
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 head(get_result(img_grad, "data.frame"), 5)
 
-## ----fig.width= 8, fig.height=6, eval = torch::torch_is_installed() & keras::is_keras_available()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.width= 8, fig.height=6-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 library(ggplot2)
 library(neuralnet)
 
@@ -1113,29 +1113,29 @@ ggplot(df) +
   theme_bw()
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Class method
-#  method$plot(
-#    data_idx = 1,
-#    output_idx = NULL,
-#    output_label = NULL,
-#    aggr_channels = "sum",
-#    as_plotly = FALSE,
-#    same_scale = FALSE,
-#    show_preds = TRUE
-#  )
-#  
-#  # or the S3 method
-#  plot(method,
-#    data_idx = 1,
-#    output_idx = NULL,
-#    output_label = NULL,
-#    aggr_channels = "sum",
-#    as_plotly = FALSE,
-#    same_scale = FALSE,
-#    show_preds = TRUE
-#  )
+# # Class method
+# method$plot(
+#   data_idx = 1,
+#   output_idx = NULL,
+#   output_label = NULL,
+#   aggr_channels = "sum",
+#   as_plotly = FALSE,
+#   same_scale = FALSE,
+#   show_preds = TRUE
+# )
+# 
+# # or the S3 method
+# plot(method,
+#   data_idx = 1,
+#   output_idx = NULL,
+#   output_label = NULL,
+#   aggr_channels = "sum",
+#   as_plotly = FALSE,
+#   same_scale = FALSE,
+#   show_preds = TRUE
+# )
 
-## ----fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.width = 8, fig.height=5----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot for output classes 'setosa' and  'virginica' and
 # data points '1' and '70'
 p <- plot(tab_grad, output_label = c("setosa", "virginica"), data_idx = c(1, 70))
@@ -1148,7 +1148,7 @@ p +
   ggplot2::theme_bw() +
   ggplot2::ggtitle("My first 'innsight'-plot")
 
-## ----fig.width = 8, fig.height=3, eval = torch::torch_is_installed() & keras::is_keras_available()----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.width = 8, fig.height=3----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # In addition, you can use all the options of the class 'innsight_ggplot2',
 # e.g. getting the corresponding ggplot2 object
 class(p[[1, 1]])
@@ -1157,20 +1157,20 @@ class(p[[1, 1]])
 p[2, 1:2]
 
 ## ----fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
-#  
-#  # Show plot (it also includes a drop down menu for selecting the colorscale)
-#  p
+# # You can do the same with the plotly-based plots
+# p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
+# 
+# # Show plot (it also includes a drop down menu for selecting the colorscale)
+# p
 
-## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
-#  
-#  # Show plot (it also includes a drop down menu for selecting the colorscale)
-#  plotly::config(print(p))
+## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # You can do the same with the plotly-based plots
+# p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
+# 
+# # Show plot (it also includes a drop down menu for selecting the colorscale)
+# plotly::config(print(p))
 
-## ----fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.width = 8, fig.height=5----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # We can do the same for models with image data. In addition, you can define
 # the aggregation function for the channels
 p <- plot(img_grad,
@@ -1187,7 +1187,7 @@ p +
   ggplot2::scale_fill_viridis_c() +
   ggplot2::ggtitle("My first 'innsight'-plot")
 
-## ----fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.width = 8, fig.height=5----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # You can also do custom modifications of the results, e.g.
 # taking the absolute value of all results. But the
 # shape has to be the same after the modification!
@@ -1204,34 +1204,34 @@ tab_grad$result[[1]][[1]] <- abs(result[[1]][[1]])
 plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Class method
-#  method$plot_global(
-#    output_idx = NULL,
-#    data_idx = "all",
-#    ref_data_idx = NULL,
-#    aggr_channels = "sum",
-#    preprocess_FUN = abs,
-#    as_plotly = FALSE,
-#    individual_data_idx = NULL,
-#    individual_max = 20
-#  )
-#  
-#  # or the S3 method
-#  plot_global(method,
-#    output_idx = NULL,
-#    data_idx = "all",
-#    ref_data_idx = NULL,
-#    aggr_channels = "sum",
-#    preprocess_FUN = abs,
-#    as_plotly = FALSE,
-#    individual_data_idx = NULL,
-#    individual_max = 20
-#  )
-#  
-#  # or the alias for tabular or signal data
-#  boxplot(...)
+# # Class method
+# method$plot_global(
+#   output_idx = NULL,
+#   data_idx = "all",
+#   ref_data_idx = NULL,
+#   aggr_channels = "sum",
+#   preprocess_FUN = abs,
+#   as_plotly = FALSE,
+#   individual_data_idx = NULL,
+#   individual_max = 20
+# )
+# 
+# # or the S3 method
+# plot_global(method,
+#   output_idx = NULL,
+#   data_idx = "all",
+#   ref_data_idx = NULL,
+#   aggr_channels = "sum",
+#   preprocess_FUN = abs,
+#   as_plotly = FALSE,
+#   individual_data_idx = NULL,
+#   individual_max = 20
+# )
+# 
+# # or the alias for tabular or signal data
+# boxplot(...)
 
-## ----fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.width = 8, fig.height=5----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create a boxplot for output classes '1' (setosa) and '3' (virginica)
 p <- boxplot(tab_grad, output_idx = c(1, 3))
 
@@ -1247,28 +1247,28 @@ p +
 boxplot(tab_grad, output_idx = c(1, 3), data_idx = 1:50, ref_data_idx = c(60))
 
 ## ----fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- boxplot(tab_grad,
-#    output_idx = c(1, 3), data_idx = 1:50,
-#    ref_data_idx = 60, as_plotly = TRUE
-#  )
-#  
-#  # Show plot (it also includes a drop down menu for selecting the reference data
-#  # point and toggle the plot type 'Boxplot' or 'Violin')
-#  p
+# # You can do the same with the plotly-based plots
+# p <- boxplot(tab_grad,
+#   output_idx = c(1, 3), data_idx = 1:50,
+#   ref_data_idx = 60, as_plotly = TRUE
+# )
+# 
+# # Show plot (it also includes a drop down menu for selecting the reference data
+# # point and toggle the plot type 'Boxplot' or 'Violin')
+# p
 
-## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- boxplot(tab_grad,
-#    output_idx = c(1, 3), data_idx = 1:50,
-#    ref_data_idx = 60, as_plotly = TRUE
-#  )
-#  
-#  # Show plot (it also includes a drop down menu for selecting the reference data
-#  # point and toggle the plot type Boxplot or Violin)
-#  plotly::config(print(p))
+## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # You can do the same with the plotly-based plots
+# p <- boxplot(tab_grad,
+#   output_idx = c(1, 3), data_idx = 1:50,
+#   ref_data_idx = 60, as_plotly = TRUE
+# )
+# 
+# # Show plot (it also includes a drop down menu for selecting the reference data
+# # point and toggle the plot type Boxplot or Violin)
+# plotly::config(print(p))
 
-## ----fig.width=8, fig.height=4, eval = torch::torch_is_installed() & keras::is_keras_available()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.width=8, fig.height=4------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # We can do the same for models with image data (but have to use the method
 # `plot_global`, since no boxplots are created). In addition, you can define
 # the aggregation function for the channels
@@ -1284,26 +1284,26 @@ p +
   ggplot2::ggtitle("My first 'innsight'-boxplot")
 
 ## ----fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- plot_global(img_grad,
-#    output_idx = c(1, 2), aggr_channels = "norm",
-#    as_plotly = TRUE
-#  )
-#  
-#  # Show plot (it also includes a drop down menu for selecting the colorscale,
-#  # another menu for toggling between the plot types 'Heatmap' and 'Contour'
-#  # and a scale for selecting the respective percentile)
-#  p
+# # You can do the same with the plotly-based plots
+# p <- plot_global(img_grad,
+#   output_idx = c(1, 2), aggr_channels = "norm",
+#   as_plotly = TRUE
+# )
+# 
+# # Show plot (it also includes a drop down menu for selecting the colorscale,
+# # another menu for toggling between the plot types 'Heatmap' and 'Contour'
+# # and a scale for selecting the respective percentile)
+# p
 
-## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- plot_global(img_grad,
-#    output_idx = c(1, 2), aggr_channels = "norm",
-#    as_plotly = TRUE
-#  )
-#  plotly::config(print(p))
+## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # You can do the same with the plotly-based plots
+# p <- plot_global(img_grad,
+#   output_idx = c(1, 2), aggr_channels = "norm",
+#   as_plotly = TRUE
+# )
+# plotly::config(print(p))
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 library(keras)
 library(torch)
 
@@ -1382,7 +1382,7 @@ res_two_inputs <- run_grad(converter, data,
   output_idx = list(1:3, 1:3)
 )
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot for output node 1 and 2 in the first output layer and
 # data points 1 and 3
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
@@ -1400,7 +1400,7 @@ p@multiplot
 p@output_strips
 p@col_dims
 
-## ----fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.height=6, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
@@ -1424,7 +1424,7 @@ new_p
 boxplot(res_simple, output_idx = 1:2) +
   geom_jitter(width = 0.3, alpha = 0.4)
 
-## ----fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.height=6, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
@@ -1440,7 +1440,7 @@ class(p_new)
 # Show the subplot
 p_new
 
-## ----fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.height=6, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
@@ -1456,7 +1456,7 @@ class(p_new)
 # Show the new plot
 p_new
 
-## ----fig.height=3, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.height=3, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = 1)
 
@@ -1465,7 +1465,7 @@ class(print(p))
 class(show(p))
 class(plot(p))
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create a plot for output node 1 in the first output layer and node 2 in the
 # second output layer and data points 1 and 3
 p <- plot(res_two_inputs, output_idx = list(1, c(1, 2)), data_idx = c(1, 3))
@@ -1486,7 +1486,7 @@ str(p@output_strips, max.level = 1)
 # Slot 'col_dims' contains the number of columns for each output node
 p@col_dims
 
-## ----fig.height=4, fig.width=10, eval = torch::torch_is_installed() & keras::is_keras_available()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.height=4, fig.width=10, eval = keras::is_keras_available() & torch::torch_is_installed()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = c(1,2))
 
@@ -1497,7 +1497,7 @@ p[1, 1:2]
 # The same plot as shown in the whole plot
 p[1, 1:2, restyle = FALSE]
 
-## ----fig.height=4, fig.width=10, eval = torch::torch_is_installed() & keras::is_keras_available()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.height=4, fig.width=10, eval = keras::is_keras_available() & torch::torch_is_installed()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = 1)
 
@@ -1510,7 +1510,7 @@ class(plot(p))
 # e.g. double the width of both images
 print(p, widths = c(2, 1, 2, 1))
 
-## ----fig.height=7, fig.width=12, eval = torch::torch_is_installed() & keras::is_keras_available()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----fig.height=7, fig.width=12, eval = keras::is_keras_available() & torch::torch_is_installed()-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = c(1, 3))
 
@@ -1528,7 +1528,7 @@ p[2, ] <- p[2, , restyle = FALSE] + theme_dark()
 # Show the result with all changes
 p
 
-## ----eval = torch::torch_is_installed() & keras::is_keras_available()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----eval = keras::is_keras_available() & torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create a plot for output node 1 in the first layer and output node 2 in the
 # second layer and data point 1 and 3
 p <- plot(res_two_inputs,
@@ -1555,109 +1555,109 @@ str(p@layout, max.level = 1)
 p@col_dims
 
 ## ----eval=FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create plot
-#  p <- plot(res_two_inputs,
-#    output_idx = list(1, 2), data_idx = c(1, 3),
-#    as_plotly = TRUE
-#  )
-#  
-#  # Show the whole plot
-#  p
+# # Create plot
+# p <- plot(res_two_inputs,
+#   output_idx = list(1, 2), data_idx = c(1, 3),
+#   as_plotly = TRUE
+# )
+# 
+# # Show the whole plot
+# p
 
-## ----eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=4,out.width= "100%", fig.width=20-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create plot
-#  p <- plot(res_two_inputs,
-#    output_idx = list(1, 2), data_idx = c(1, 3),
-#    as_plotly = TRUE
-#  )
-#  
-#  # Show the whole plot
-#  plotly::config(print(p))
-
-## ----eval=FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Now you can select specific rows and columns for in-depth investigation,
-#  # e.g. only the result for output "Y2"
-#  p_new <- p[1:2, 3:4]
-#  
-#  # It's still an object of class 'innsight_plotly'
-#  class(p_new)
-#  #> [1] "innsight_plotly"
-#  #> attr(,"package")
-#  #> [1] "innsight"
-#  
-#  # Show the subplot
-#  p_new
-
-## ----eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=5, fig.width=10-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Now you can select specific rows and columns for in-depth investigation,
-#  # e.g. only the result for output "Y2"
-#  p_new <- p[1:2, 3:4]
-#  
-#  # Show the subplot
-#  plotly::config(print(p_new))
+## ----eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed(), echo = FALSE, fig.height=4,out.width= "100%", fig.width=20-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # Create plot
+# p <- plot(res_two_inputs,
+#   output_idx = list(1, 2), data_idx = c(1, 3),
+#   as_plotly = TRUE
+# )
+# 
+# # Show the whole plot
+# plotly::config(print(p))
 
 ## ----eval=FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create plot
-#  p <- plot(res_two_inputs,
-#    output_idx = list(1, 2), data_idx = c(1, 3),
-#    as_plotly = TRUE
-#  )
-#  
-#  # Now you can select a single plot by passing the row and column index,
-#  # e.g. the plot for output "Y1", data point 3 and the second input layer
-#  p_new <- p[[2, 2]]
-#  
-#  # It's a plotly object
-#  class(p_new)
-#  #> [1] "plotly"     "htmlwidget"
-#  
-#  # Show the plot
-#  p_new
+# # Now you can select specific rows and columns for in-depth investigation,
+# # e.g. only the result for output "Y2"
+# p_new <- p[1:2, 3:4]
+# 
+# # It's still an object of class 'innsight_plotly'
+# class(p_new)
+# #> [1] "innsight_plotly"
+# #> attr(,"package")
+# #> [1] "innsight"
+# 
+# # Show the subplot
+# p_new
 
-## ----eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=5, fig.width=10-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create plot
-#  p <- plot(res_two_inputs,
-#    output_idx = list(1, 2), data_idx = c(1, 3),
-#    as_plotly = TRUE
-#  )
-#  
-#  # Now you can select a single plot by passing the row and column index,
-#  # e.g. the plot for output "Y1", data point 3 and the second input layer
-#  p_new <- p[[2, 2]]
-#  
-#  # Show the subplot
-#  p_new
+## ----eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed(), echo = FALSE, fig.height=5, fig.width=10-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # Now you can select specific rows and columns for in-depth investigation,
+# # e.g. only the result for output "Y2"
+# p_new <- p[1:2, 3:4]
+# 
+# # Show the subplot
+# plotly::config(print(p_new))
+
+## ----eval=FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # Create plot
+# p <- plot(res_two_inputs,
+#   output_idx = list(1, 2), data_idx = c(1, 3),
+#   as_plotly = TRUE
+# )
+# 
+# # Now you can select a single plot by passing the row and column index,
+# # e.g. the plot for output "Y1", data point 3 and the second input layer
+# p_new <- p[[2, 2]]
+# 
+# # It's a plotly object
+# class(p_new)
+# #> [1] "plotly"     "htmlwidget"
+# 
+# # Show the plot
+# p_new
+
+## ----eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed(), echo = FALSE, fig.height=5, fig.width=10-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # Create plot
+# p <- plot(res_two_inputs,
+#   output_idx = list(1, 2), data_idx = c(1, 3),
+#   as_plotly = TRUE
+# )
+# 
+# # Now you can select a single plot by passing the row and column index,
+# # e.g. the plot for output "Y1", data point 3 and the second input layer
+# p_new <- p[[2, 2]]
+# 
+# # Show the subplot
+# p_new
 
 ## ----fig.height=4, fig.width=10, eval = FALSE---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create plot
-#  p <- plot(res_two_inputs,
-#    output_idx = list(1, 2), data_idx = 1,
-#    as_plotly = TRUE
-#  )
-#  
-#  # All methods behave the same and return a plotly object
-#  class(print(p))
-#  #> [1] "plotly"     "htmlwidget"
-#  class(show(p))
-#  #> [1] "plotly"     "htmlwidget"
-#  class(plot(p))
-#  #> [1] "plotly"     "htmlwidget"
-#  #>
-#  # You can also pass additional arguments to the method 'plotly::subplot',
-#  # e.g. the margins
-#  print(p, margin = c(0.03, 0.03, 0.01, 0.01))
+# # Create plot
+# p <- plot(res_two_inputs,
+#   output_idx = list(1, 2), data_idx = 1,
+#   as_plotly = TRUE
+# )
+# 
+# # All methods behave the same and return a plotly object
+# class(print(p))
+# #> [1] "plotly"     "htmlwidget"
+# class(show(p))
+# #> [1] "plotly"     "htmlwidget"
+# class(plot(p))
+# #> [1] "plotly"     "htmlwidget"
+# #>
+# # You can also pass additional arguments to the method 'plotly::subplot',
+# # e.g. the margins
+# print(p, margin = c(0.03, 0.03, 0.01, 0.01))
 
-## ----fig.height=4, fig.width=10, echo = FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create plot
-#  p <- plot(res_two_inputs,
-#    output_idx = list(1, 2), data_idx = 1,
-#    as_plotly = TRUE
-#  )
-#  
-#  # You can also pass additional arguments to the method 'plotly::subplot',
-#  # e.g. the margins
-#  plotly::config(print(p,
-#    margin = c(0.03, 0.03, 0.01, 0.01),
-#    widths = c(0.35, 0.15, 0.15, 0.35)
-#  ))
+## ----fig.height=4, fig.width=10, echo = FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed()-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# # Create plot
+# p <- plot(res_two_inputs,
+#   output_idx = list(1, 2), data_idx = 1,
+#   as_plotly = TRUE
+# )
+# 
+# # You can also pass additional arguments to the method 'plotly::subplot',
+# # e.g. the margins
+# plotly::config(print(p,
+#   margin = c(0.03, 0.03, 0.01, 0.01),
+#   widths = c(0.35, 0.15, 0.15, 0.35)
+# ))
 

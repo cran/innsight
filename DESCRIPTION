@@ -1,7 +1,7 @@
 Type: Package
 Package: innsight
 Title: Get the Insights of Your Neural Network
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(
     person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4623-8271")),
@@ -43,9 +43,9 @@ Collate: 'AgnosticMethods.R' 'AgnosticWrapper.R' 'ConnectionWeights.R'
         'innsight.R' 'utils.R' 'utils_ggplot.R' 'utils_plotly.R'
         'innsight_sugar.R' 'innsight_ggplot2.R' 'innsight_plotly.R'
 NeedsCompilation: no
-Packaged: 2024-11-25 21:05:03 UTC; niklas
+Packaged: 2025-03-30 15:03:28 UTC; niklas
 Author: Niklas Koenen [aut, cre] (<https://orcid.org/0000-0002-4623-8271>),
   Raphael Baudeu [ctb]
 Maintainer: Niklas Koenen <niklas.koenen@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-11-26 09:50:02 UTC
+Date/Publication: 2025-03-30 15:20:02 UTC

@@ -3,6 +3,7 @@ knitr::opts_chunk$set(
   size = "huge",
   collapse = TRUE,
   comment = "#>",
+  eval = torch::torch_is_installed(),
   fig.align = "center",
   out.width = "95%"
 )
@@ -18,31 +19,31 @@ knitr::include_graphics("images/feature_attribution.png")
 knitr::include_graphics("images/innsight_torch.png")
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Step 0: Model creation
-#  model <- ... # this step is left to the user
-#  
-#  # Step 1: Convert the model
-#  converter <- convert(model)
-#  converter <- Converter$new(model) # the same but without helper function
-#  
-#  # Step 2: Apply selected method to your data
-#  result <- run_method(converter, data)
-#  result <- Method$new(converter, data) # the same but without helper function
-#  
-#  # Step 3: Show and plot the results
-#  get_result(result) # get the result as an `array`, `data.frame` or `torch_tensor`
-#  plot(result) # for individual results (local)
-#  plot_global(result) # for summarized results (global)
-#  boxplot(result) # alias for `plot_global` for tabular and signal data
+# # Step 0: Model creation
+# model <- ... # this step is left to the user
+# 
+# # Step 1: Convert the model
+# converter <- convert(model)
+# converter <- Converter$new(model) # the same but without helper function
+# 
+# # Step 2: Apply selected method to your data
+# result <- run_method(converter, data)
+# result <- Method$new(converter, data) # the same but without helper function
+# 
+# # Step 3: Show and plot the results
+# get_result(result) # get the result as an `array`, `data.frame` or `torch_tensor`
+# plot(result) # for individual results (local)
+# plot_global(result) # for summarized results (global)
+# boxplot(result) # alias for `plot_global` for tabular and signal data
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Using the helper function `convert`
-#  converter <- convert(model, ...)
-#  # It simply passes all arguments to the initialization function of
-#  # the corresponding R6 class, i.e., it is equivalent to
-#  converter <- Converter$new(model, ...)
+# # Using the helper function `convert`
+# converter <- convert(model, ...)
+# # It simply passes all arguments to the initialization function of
+# # the corresponding R6 class, i.e., it is equivalent to
+# converter <- Converter$new(model, ...)
 
-## ----eval = torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 library(torch)
 library(innsight)
 torch_manual_seed(123)
@@ -81,7 +82,7 @@ model <- model %>%
 # Convert the model
 conv_cnn <- convert(model)
 
-## ----eval = torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 library(neuralnet)
 data(iris)
 
@@ -93,7 +94,7 @@ model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris,
 # Convert model
 conv_dense <- convert(model)
 
-## ----eval = torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 model <- list(
   input_dim = 2,
   input_names = list(c("X1", "Feat2")),
@@ -113,24 +114,24 @@ model <- list(
 
 converter <- convert(model)
 
-## ----eval = torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 converter
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  method <- Method$new(converter, data, # required arguments
-#    channels_first = TRUE, # optional settings
-#    output_idx = NULL, # .
-#    ignore_last_act = TRUE, # .
-#    ... # other args and method-specific args
-#  )
+# method <- Method$new(converter, data, # required arguments
+#   channels_first = TRUE, # optional settings
+#   output_idx = NULL, # .
+#   ignore_last_act = TRUE, # .
+#   ... # other args and method-specific args
+# )
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  method <- run_method(converter, data, # required arguments
-#    channels_first = TRUE, # optional settings
-#    output_idx = NULL, # .
-#    ignore_last_act = TRUE, # .
-#    ... # other args and method-specific args
-#  )
+# method <- run_method(converter, data, # required arguments
+#   channels_first = TRUE, # optional settings
+#   output_idx = NULL, # .
+#   ignore_last_act = TRUE, # .
+#   ... # other args and method-specific args
+# )
 
 ## ----results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Apply method 'Gradient' for the dense network
@@ -204,11 +205,11 @@ connectweights_cnn <- run_cw(conv_cnn, x, times_input = TRUE)
 smooth_cnn
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Get the result with the class method
-#  method$get_result(type = "array")
-#  
-#  # or use the S3 function
-#  get_result(method, type = "array")
+# # Get the result with the class method
+# method$get_result(type = "array")
+# 
+# # or use the S3 function
+# get_result(method, type = "array")
 
 ## ----eval = keras::is_keras_available() & torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Get result (make sure 'grad_dense' is defined!)
@@ -241,28 +242,28 @@ result_torch <- get_result(deeplift_dense, "torch_tensor")
 result_torch[c(1, 71), , ]
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create a plot for single data points
-#  plot(method,
-#    data_idx = 1, # the data point to be plotted
-#    output_idx = NULL, # the indices of the output nodes/classes to be plotted
-#    output_label = NULL, # the class labels to be plotted
-#    aggr_channels = "sum",
-#    as_plotly = FALSE, # create an interactive plot
-#    ... # other arguments
-#  )
-#  
-#  # Create a plot with summarized results
-#  plot_global(method,
-#    output_idx = NULL, # the indices of the output nodes/classes to be plotted
-#    output_label = NULL, # the class labels to be plotted
-#    ref_data_idx = NULL, # the index of an reference data point to be plotted
-#    aggr_channels = "sum",
-#    as_plotly = FALSE, # create an interactive plot
-#    ... # other arguments
-#  )
-#  
-#  # Alias for `plot_global` for tabular and signal data
-#  boxplot(...)
+# # Create a plot for single data points
+# plot(method,
+#   data_idx = 1, # the data point to be plotted
+#   output_idx = NULL, # the indices of the output nodes/classes to be plotted
+#   output_label = NULL, # the class labels to be plotted
+#   aggr_channels = "sum",
+#   as_plotly = FALSE, # create an interactive plot
+#   ... # other arguments
+# )
+# 
+# # Create a plot with summarized results
+# plot_global(method,
+#   output_idx = NULL, # the indices of the output nodes/classes to be plotted
+#   output_label = NULL, # the class labels to be plotted
+#   ref_data_idx = NULL, # the index of an reference data point to be plotted
+#   aggr_channels = "sum",
+#   as_plotly = FALSE, # create an interactive plot
+#   ... # other arguments
+# )
+# 
+# # Alias for `plot_global` for tabular and signal data
+# boxplot(...)
 
 ## ----eval = keras::is_keras_available() & torch::torch_is_installed(), fig.height=6, fig.width=9------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Plot the result of the first data point (default) for the output classes '1', '2' and '3'
@@ -274,13 +275,13 @@ plot(smooth_dense, data_idx = c(1, 144), output_idx = 1:3)
 plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1, 4))
 
 ## ----eval = FALSE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # Create a plotly plot for the first output
-#  plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1), as_plotly = TRUE)
+# # Create a plotly plot for the first output
+# plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1), as_plotly = TRUE)
 
 ## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1), as_plotly = TRUE)
-#  plotly::config(print(p))
+# # You can do the same with the plotly-based plots
+# p <- plot(lrp_cnn, aggr_channels = "norm", output_idx = c(1), as_plotly = TRUE)
+# plotly::config(print(p))
 
 ## ----eval = keras::is_keras_available() & torch::torch_is_installed(), fig.height=6, fig.width=9------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Create boxplot for the first two output classes
@@ -292,17 +293,17 @@ plot_global(smooth_dense,
 )
 
 ## ----fig.height=6, fig.width=9, eval = FALSE----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  plot_global(smooth_dense,
-#    output_idx = 1:3, preprocess_FUN = identity,
-#    ref_data_idx = c(55), as_plotly = TRUE
-#  )
+# # You can do the same with the plotly-based plots
+# plot_global(smooth_dense,
+#   output_idx = 1:3, preprocess_FUN = identity,
+#   ref_data_idx = c(55), as_plotly = TRUE
+# )
 
 ## ----fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  # You can do the same with the plotly-based plots
-#  p <- plot_global(smooth_dense,
-#    output_idx = 1:3, preprocess_FUN = identity,
-#    ref_data_idx = c(55), as_plotly = TRUE
-#  )
-#  plotly::config(print(p))
+# # You can do the same with the plotly-based plots
+# p <- plot_global(smooth_dense,
+#   output_idx = 1:3, preprocess_FUN = identity,
+#   ref_data_idx = c(55), as_plotly = TRUE
+# )
+# plotly::config(print(p))
 

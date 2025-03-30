@@ -103,13 +103,13 @@ plot(grad_no_softmax, data_idx = c(1, 111), output_idx = c(1, 2)) +
   ggplot2::theme_bw()
 
 ## ----fig.height=4, fig.keep='all', fig.width=9, eval = FALSE----------------------------
-#  # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
-#  plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
+# # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
+# plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
 
 ## ----fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()----
-#  # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
-#  p <- plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
-#  plotly::config(print(p, shareY = TRUE))
+# # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
+# p <- plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
+# plotly::config(print(p, shareY = TRUE))
 
 ## ----fig.height=6, fig.keep='all', fig.width=9------------------------------------------
 # Summarized results for output node 1 (Setosa) and 2 (Versicolor) and
@@ -118,12 +118,12 @@ boxplot(grad_no_softmax, output_idx = c(1, 2), ref_data_idx = 3, preprocess_FUN 
   ggplot2::theme_bw()
 
 ## ----fig.height=4, fig.keep='all', fig.width=9, eval = FALSE----------------------------
-#  # Show boxplot only for instances of class setosa for output node 1 (Setosa)
-#  # and 2 (Versicolor)
-#  boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
+# # Show boxplot only for instances of class setosa for output node 1 (Setosa)
+# # and 2 (Versicolor)
+# boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
 
 ## ----fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()----
-#  # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
-#  p <- boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
-#  plotly::config(print(p, shareY = TRUE))
+# # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
+# p <- boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
+# plotly::config(print(p, shareY = TRUE))
 
